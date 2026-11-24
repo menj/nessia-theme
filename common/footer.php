@@ -7,6 +7,8 @@
                     <?php echo public_nav_main(); ?>
                 </nav>
 
+                <?php echo nessia_social_links(); ?>
+
                 <div class="nessia-footer-meta">
                     <div id="footer-text">
                         <?php

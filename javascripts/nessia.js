@@ -14,13 +14,14 @@ var NessiaTheme = (function ($) {
     /**
      * Initialise all theme components.
      */
-    var i18n = { search: 'Search', menu: 'Menu' };
+    var i18n = { search: 'Search', menu: 'Menu', image: 'Image %1 of %2' };
 
     function _loadStrings() {
         var wrap = document.getElementById('wrap');
         if (!wrap) return;
         i18n.search = wrap.getAttribute('data-i18n-search') || i18n.search;
         i18n.menu = wrap.getAttribute('data-i18n-menu') || i18n.menu;
+        i18n.image = wrap.getAttribute('data-i18n-image') || i18n.image;
     }
 
     function _prefersReducedMotion() {
@@ -35,6 +36,7 @@ var NessiaTheme = (function ($) {
         _expandFileViewers();
         _setupHeaderShrink();
         _setupAdvancedSearch();
+        _setupLightbox();
     }
 
     /**
@@ -202,6 +204,46 @@ var NessiaTheme = (function ($) {
             if (e.key === 'Escape' && !panel.hidden) {
                 closePanel();
             }
+        });
+    }
+
+    /**
+     * Open item images in Lightbox2 (if loaded). Omeka links each file
+     * thumbnail to its file page or original; we point image links at the
+     * full-size original and group them into one gallery per page.
+     */
+    function _setupLightbox() {
+        if (!window.lightbox || typeof window.lightbox.option !== 'function') return;
+
+        window.lightbox.option({
+            wrapAround: true,
+            albumLabel: i18n.image,
+            fadeDuration: _prefersReducedMotion() ? 0 : 300,
+            imageFadeDuration: _prefersReducedMotion() ? 0 : 300,
+            resizeDuration: _prefersReducedMotion() ? 0 : 400
+        });
+
+        var title = $.trim($('#content h1').first().text());
+        var imgExt = /\.(jpe?g|png|gif|webp|avif|bmp|tiff?)(\?.*)?$/i;
+
+        $('#itemfiles a, .items.show #content .item-file a').each(function () {
+            var $a = $(this);
+            var $img = $a.find('img').first();
+            if (!$img.length) return;
+
+            var href = $a.attr('href') || '';
+            if (!imgExt.test(href)) {
+                // Thumbnail links to the file page: derive the original from the thumbnail src.
+                var src = $img.attr('src') || '';
+                var original = src.replace(/\/files\/(thumbnails|square_thumbnails|fullsize)\//, '/files/fullsize/');
+                if (original === src || !imgExt.test(original)) return;
+                href = original;
+            }
+            $a.attr({
+                href: href,
+                'data-lightbox': 'item-gallery',
+                'data-title': $img.attr('alt') || title
+            });
         });
     }
 

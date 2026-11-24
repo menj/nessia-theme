@@ -22,20 +22,28 @@
 
     <!-- Stylesheets -->
     <?php
-    queue_css_file(array('normalize', 'nessia'));
+    $nessiaLightbox = (bool) nessia_option('image_lightbox');
+    queue_css_file($nessiaLightbox ? array('normalize', 'lightbox.min', 'nessia') : array('normalize', 'nessia'));
     queue_css_url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Noto+Serif:ital,wght@0,400;0,700;1,400&family=Noto+Sans+Arabic:wght@300;400;500&family=Noto+Sans+Hebrew:wght@300;400;500&family=Noto+Sans+Syriac:wght@400&display=swap');
     echo head_css();
     ?>
 
     <!-- JavaScripts -->
-    <?php queue_js_file(array('globals', 'vendor/jquery-accessibleMegaMenu', 'nessia')); ?>
+    <?php
+    $nessiaJs = array('globals', 'vendor/jquery-accessibleMegaMenu');
+    if ($nessiaLightbox) {
+        $nessiaJs[] = 'vendor/lightbox.min';
+    }
+    $nessiaJs[] = 'nessia';
+    queue_js_file($nessiaJs);
+    ?>
     <?php echo head_js(); ?>
 </head>
 <?php echo body_tag(array('id' => @$bodyid, 'class' => @$bodyclass)); ?>
     <a href="#content" id="skipnav"><?php echo __('Skip to Main Content'); ?></a>
     <?php fire_plugin_hook('public_body', array('view' => $this)); ?>
 
-<div id="wrap" data-i18n-search="<?php echo html_escape(__('Search')); ?>" data-i18n-menu="<?php echo html_escape(__('Menu')); ?>">
+<div id="wrap" data-i18n-search="<?php echo html_escape(__('Search')); ?>" data-i18n-menu="<?php echo html_escape(__('Menu')); ?>" data-i18n-image="<?php echo html_escape(__('Image %1 of %2')); ?>">
 
     <?php
         $headerBg = nessia_header_bg();

@@ -26,6 +26,8 @@ function nessia_option_defaults()
         'footer_text'              => '',
         'display_footer_copyright' => '1',
         'use_advanced_search'      => '1',
+        'social_links'             => '',
+        'image_lightbox'           => '1',
     );
 }
 
@@ -186,4 +188,131 @@ function nessia_item_media_type($files)
         return key($types);
     }
     return $types ? 'mixed' : 'document';
+}
+
+/**
+ * Map of URL host fragments to icon names in images/social/.
+ * Order matters: more specific hosts first.
+ *
+ * @return array
+ */
+function nessia_social_hosts()
+{
+    return array(
+        'profiles.wordpress.org' => 'wordpress-profile',
+        'academia.edu'   => 'academia',
+        'orcid.org'      => 'orcid',
+        'viaf.org'       => 'viaf',
+        'isni.org'       => 'isni',
+        'worldcat.org'   => 'oclc',
+        'oclc.org'       => 'oclc',
+        'wikidata.org'   => 'wikidata',
+        'wikipedia.org'  => 'wikipedia',
+        'goodreads.com'  => 'goodreads',
+        'scribd.com'     => 'scribd',
+        'issuu.com'      => 'issuu',
+        'substack.com'   => 'substack',
+        'medium.com'     => 'medium',
+        'github.com'     => 'github',
+        'x.com'          => 'x',
+        'twitter.com'    => 'x',
+        'facebook.com'   => 'facebook',
+        'instagram.com'  => 'instagram',
+        'threads.net'    => 'threads',
+        'linkedin.com'   => 'linkedin',
+        'youtube.com'    => 'youtube',
+        'youtu.be'       => 'youtube',
+        'tiktok.com'     => 'tiktok',
+        'vimeo.com'      => 'vimeo',
+        'soundcloud.com' => 'soundcloud',
+        'spotify.com'    => 'spotify',
+        'suno.com'       => 'suno',
+        'suno.ai'        => 'suno',
+        't.me'           => 'telegram',
+        'telegram.me'    => 'telegram',
+        'whatsapp.com'   => 'whatsapp',
+        'wa.me'          => 'whatsapp',
+        'signal.me'      => 'signal',
+        'discord.gg'     => 'discord',
+        'discord.com'    => 'discord',
+        'reddit.com'     => 'reddit',
+        'quora.com'      => 'quora',
+        'pinterest.com'  => 'pinterest',
+        'tumblr.com'     => 'tumblr',
+        'bsky.app'       => 'bluesky',
+        'flickr.com'     => 'flickr',
+        'wordpress.com'  => 'wordpress',
+        'behance.net'    => 'behance',
+        'dribbble.com'   => 'dribbble',
+        'twitch.tv'      => 'twitch',
+        'line.me'        => 'line',
+        'snapchat.com'   => 'snapchat',
+        'wechat.com'     => 'wechat',
+        'fiverr.com'     => 'fiverr',
+    );
+}
+
+/**
+ * Inline an icon from images/social/ so it inherits the text colour.
+ *
+ * @param string $name Icon file name without extension.
+ * @return string SVG markup or empty string.
+ */
+function nessia_social_icon($name)
+{
+    static $cache = array();
+    if (isset($cache[$name])) {
+        return $cache[$name];
+    }
+    $path = dirname(__FILE__) . '/images/social/' . basename($name) . '.svg';
+    $svg = is_readable($path) ? file_get_contents($path) : '';
+    if ($svg) {
+        $svg = preg_replace('/<title>.*?<\/title>/s', '', $svg);
+        $svg = preg_replace('/fill="#0{3,6}"/i', 'fill="currentColor"', $svg);
+        $svg = preg_replace('/<svg\b/', '<svg fill="currentColor" aria-hidden="true" focusable="false" width="18" height="18"', $svg, 1);
+    }
+    return $cache[$name] = $svg;
+}
+
+/**
+ * Footer social / profile links from the "social_links" option
+ * (one URL per line). Icons are picked from the URL's host; Mastodon
+ * is detected by the /@user path pattern.
+ *
+ * @return string HTML list or empty string.
+ */
+function nessia_social_links()
+{
+    $raw = (string) nessia_option('social_links');
+    if (trim($raw) === '') {
+        return '';
+    }
+    $hosts = nessia_social_hosts();
+    $items = '';
+    foreach (preg_split('/\R/', $raw) as $line) {
+        $url = trim($line);
+        if ($url === '' || !preg_match('#^https?://#i', $url)) {
+            continue;
+        }
+        $host = strtolower((string) parse_url($url, PHP_URL_HOST));
+        $host = preg_replace('/^(www|m)\./', '', $host);
+        $icon = null;
+        foreach ($hosts as $needle => $name) {
+            if ($host === $needle || substr($host, -strlen('.' . $needle)) === '.' . $needle) {
+                $icon = $name;
+                break;
+            }
+        }
+        if (!$icon && preg_match('#^/@[^/]+/?$#', (string) parse_url($url, PHP_URL_PATH))) {
+            $icon = 'mastodon';
+        }
+        $svg = $icon ? nessia_social_icon($icon) : '';
+        $label = $icon ? ucwords(str_replace('-', ' ', $icon)) : $host;
+        if (!$svg) {
+            $svg = '<span class="nessia-social-fallback" aria-hidden="true">' . html_escape(strtoupper(substr($host, 0, 1))) . '</span>';
+        }
+        $items .= '<li><a href="' . html_escape($url) . '" rel="me noopener" target="_blank" title="' . html_escape($label) . '">'
+            . $svg . '<span class="sr-only">' . html_escape($label) . '</span></a></li>';
+    }
+    return $items ? '<ul class="nessia-social" aria-label="' . html_escape(__('Profiles')) . '">' . $items . '</ul>' : '';
 }
