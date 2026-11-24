@@ -2695,3 +2695,98 @@ header[role="banner"][style*="background-image"] > * {
 #itemfiles a[data-lightbox] {
     cursor: zoom-in;
 }
+
+
+/* ==========================================================================
+   Homepage — Explore by topic
+   ========================================================================== */
+
+#explore-topics {
+    clear: both;
+    margin: 2em 0 2.5em;
+}
+
+#explore-topics h2 {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--nessia-accent-dark);
+    padding-bottom: 0.5em;
+    border-bottom: 1px solid var(--nessia-border-light);
+    margin-bottom: 1.25em;
+}
+
+.nessia-topic-grid {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(16em, 1fr));
+    gap: 1em;
+}
+
+.nessia-topic-grid > li {
+    margin: 0;
+    background: var(--nessia-surface);
+    border: 1px solid var(--nessia-border-light);
+    border-top: 3px solid var(--nessia-accent);
+    border-radius: 8px;
+    padding: 1.25em;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.nessia-topic-grid > li:hover {
+    box-shadow: 0 6px 20px rgba(0,0,0,0.07);
+    transform: translateY(-2px);
+}
+
+.nessia-topic-title {
+    font-family: 'Noto Serif', serif;
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--nessia-primary);
+    text-decoration: none;
+}
+
+.nessia-topic-title:hover {
+    color: var(--nessia-link-hover);
+    text-decoration: none;
+}
+
+.nessia-topic-grid > li > p {
+    font-size: 0.875rem;
+    line-height: 1.55;
+    color: var(--nessia-text-muted);
+    margin: 0.5em 0 0;
+}
+
+.nessia-topic-children {
+    list-style: none;
+    padding: 0;
+    margin: 0.85em 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35em;
+}
+
+.nessia-topic-children li {
+    margin: 0;
+}
+
+.nessia-topic-children a {
+    display: inline-block;
+    font-size: 0.75rem;
+    padding: 0.2em 0.65em;
+    background: var(--nessia-tag-bg);
+    color: var(--nessia-tag-text);
+    border-radius: 999px;
+    text-decoration: none;
+}
+
+.nessia-topic-children a:hover {
+    background: var(--nessia-accent);
+    color: #fff;
+    text-decoration: none;
+}

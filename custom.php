@@ -316,3 +316,97 @@ function nessia_social_links()
     }
     return $items ? '<ul class="nessia-social" aria-label="' . html_escape(__('Profiles')) . '">' . $items . '</ul>' : '';
 }
+
+/**
+ * Category structure: from the NessiaSetup plugin if installed,
+ * otherwise the theme's bundled data/categories.php.
+ *
+ * @return array
+ */
+function nessia_categories()
+{
+    static $categories = null;
+    if ($categories !== null) {
+        return $categories;
+    }
+    $paths = array(
+        PLUGIN_DIR . '/NessiaSetup/categories.php',
+        dirname(__FILE__) . '/data/categories.php',
+    );
+    foreach ($paths as $path) {
+        if (is_readable($path)) {
+            $loaded = include $path;
+            if (is_array($loaded)) {
+                return $categories = $loaded;
+            }
+        }
+    }
+    return $categories = array('collections' => array(), 'subjects' => array(), 'tags' => array());
+}
+
+/**
+ * URL for a category: its collection page if a public collection with
+ * that exact title exists, otherwise a keyword search for the name.
+ *
+ * @param string $title
+ * @return string
+ */
+function nessia_category_url($title)
+{
+    static $byTitle = null;
+    if ($byTitle === null) {
+        $byTitle = array();
+        $db = get_db();
+        $titleElement = $db->getTable('Element')->findByElementSetNameAndElementName('Dublin Core', 'Title');
+        if ($titleElement) {
+            $rows = $db->fetchAll(
+                "SELECT et.record_id, et.text FROM {$db->ElementText} et
+                 JOIN {$db->Collection} c ON c.id = et.record_id
+                 WHERE et.record_type = 'Collection' AND et.element_id = ? AND c.public = 1",
+                array($titleElement->id)
+            );
+            foreach ($rows as $row) {
+                $byTitle[strtolower(trim($row['text']))] = (int) $row['record_id'];
+            }
+        }
+    }
+    $key = strtolower(trim($title));
+    if (isset($byTitle[$key])) {
+        return url('collections/show/' . $byTitle[$key]);
+    }
+    return url('items/browse', array('search' => $title));
+}
+
+/**
+ * "Explore by topic" block: collection tiles with sub-topic chips.
+ *
+ * @return string HTML
+ */
+function nessia_explore_topics()
+{
+    $categories = nessia_categories();
+    if (empty($categories['collections'])) {
+        return '';
+    }
+    $html = '<section id="explore-topics" aria-labelledby="explore-topics-title">'
+        . '<h2 id="explore-topics-title">' . __('Explore by topic') . '</h2>'
+        . '<ul class="nessia-topic-grid">';
+    foreach ($categories['collections'] as $cat) {
+        $html .= '<li><a class="nessia-topic-title" href="' . html_escape(nessia_category_url($cat['title'])) . '">'
+            . html_escape(__($cat['title'])) . '</a>';
+        if (!empty($cat['description'])) {
+            $html .= '<p>' . html_escape(__($cat['description'])) . '</p>';
+        }
+        if (!empty($cat['children'])) {
+            $html .= '<ul class="nessia-topic-children">';
+            foreach ($cat['children'] as $child) {
+                $html .= '<li><a href="' . html_escape(nessia_category_url($child['title'])) . '">'
+                    . html_escape(__($child['title'])) . '</a></li>';
+            }
+            $html .= '</ul>';
+        }
+        $html .= '</li>';
+    }
+    $html .= '</ul></section>';
+    return $html;
+}

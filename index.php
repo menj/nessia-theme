@@ -10,6 +10,8 @@
 </div>
 <?php endif; ?>
 
+<?php echo nessia_explore_topics(); ?>
+
 <?php fire_plugin_hook('public_home', array('view' => $this)); ?>
 
 <?php if (($featured = random_featured_items(1))): ?>
