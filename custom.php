@@ -6,8 +6,44 @@
  * https://nessia.org
  *
  * @package NESSIA
- * @version 1.2.4
+ * @version 1.3.0
  */
+
+/**
+ * Default values for every theme option, so the theme works out of the box
+ * before the settings form has ever been saved.
+ *
+ * @return array
+ */
+function nessia_option_defaults()
+{
+    return array(
+        'colour_scheme'            => 'gold',
+        'site_tagline'             => 'Exploring Semitic Religion, Language and Heritage',
+        'show_multilingual_names'  => '1',
+        'homepage_recent_items'    => '5',
+        'homepage_text'            => '',
+        'footer_text'              => '',
+        'display_footer_copyright' => '1',
+        'use_advanced_search'      => '1',
+    );
+}
+
+/**
+ * Read a theme option, falling back to its default when unsaved (null).
+ *
+ * @param string $name Option name.
+ * @return mixed
+ */
+function nessia_option($name)
+{
+    $value = get_theme_option($name);
+    if ($value === null) {
+        $defaults = nessia_option_defaults();
+        return isset($defaults[$name]) ? $defaults[$name] : null;
+    }
+    return $value;
+}
 
 /**
  * Display the site tagline.
@@ -16,11 +52,12 @@
  */
 function nessia_display_tagline()
 {
-    $tagline = get_theme_option('site_tagline');
-    if ($tagline) {
-        return '<p class="nessia-tagline">' . html_escape($tagline) . '</p>';
+    $tagline = nessia_option('site_tagline');
+    if ($tagline === '' || $tagline === null) {
+        $defaults = nessia_option_defaults();
+        $tagline = $defaults['site_tagline'];
     }
-    return '<p class="nessia-tagline">Exploring Semitic Religion, Language and Heritage</p>';
+    return '<p class="nessia-tagline">' . html_escape(__($tagline)) . '</p>';
 }
 
 /**
@@ -33,8 +70,7 @@ function nessia_multilingual_names()
     // Omeka returns null for checkbox options that haven't been explicitly
     // saved yet via the admin panel. We treat null (unsaved) the same as "1"
     // so the names display by default out of the box.
-    $opt = get_theme_option('show_multilingual_names');
-    if ($opt === '0') {
+    if (!nessia_option('show_multilingual_names')) {
         return '';
     }
 
@@ -67,7 +103,7 @@ function nessia_multilingual_names()
  */
 function nessia_colour_scheme()
 {
-    $scheme = get_theme_option('colour_scheme');
+    $scheme = nessia_option('colour_scheme');
     $allowed = array('gold', 'indigo', 'sand');
     if (!$scheme || !in_array($scheme, $allowed, true)) {
         $scheme = 'gold';
@@ -127,3 +163,4 @@ function nessia_header_bg()
     }
     return null;
 }
+

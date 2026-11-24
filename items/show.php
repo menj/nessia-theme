@@ -36,7 +36,7 @@
 
         <?php if (metadata('item', 'has tags')): ?>
         <dt><?php echo __('Tags'); ?></dt>
-        <dd><?php echo tag_string('item'); ?></dd>
+        <dd><?php echo tag_string('item', 'items/browse', ' '); ?></dd>
         <?php endif; ?>
 
         <dt><?php echo __('Citation'); ?></dt>

@@ -61,7 +61,7 @@
 
             <div id="search-container" role="search">
                 <?php
-                    $showAdvanced = get_theme_option('use_advanced_search');
+                    $showAdvanced = (bool) nessia_option('use_advanced_search');
                     $formClass = ($showAdvanced) ? 'with-advanced' : '';
                     $searchFormHtml = search_form(array(
                         'show_advanced' => $showAdvanced,

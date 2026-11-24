@@ -12,13 +12,12 @@
                         <?php
                         // footer_text is configured as an HTML-enabled field (html-input) in config.ini.
                         // Output as-is (admin-controlled).
-                        $footerText = get_theme_option('footer_text');
+                        $footerText = nessia_option('footer_text');
                         if ($footerText) {
                             echo $footerText;
                         }
 
-                        $showCopyright = get_theme_option('display_footer_copyright');
-                        if ($showCopyright !== '0' && ($copyright = option('copyright'))) {
+                        if (nessia_option('display_footer_copyright') && ($copyright = option('copyright'))) {
                             echo '<p class="nessia-copyright">' . html_escape($copyright) . '</p>';
                         }
                         ?>
@@ -36,9 +35,8 @@
 
     <script>
     jQuery(document).ready(function() {
-        Omeka.showAdvancedForm();
         Omeka.skipNav();
-        Omeka.megaMenu();
+        Omeka.megaMenu('#primary-nav ul.navigation');
         NessiaTheme.init();
     });
     </script>

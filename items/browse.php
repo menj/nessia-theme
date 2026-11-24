@@ -34,14 +34,16 @@ echo head(array('title' => $pageTitle, 'bodyclass' => 'items browse'));
 
 <div class="items-list">
     <?php foreach (loop('items') as $item): ?>
-    <div class="item hentry">
-        <?php
-            $itemLinkContent = '<span class="item-title">' . metadata('item', array('Dublin Core', 'Title')) . '</span>';
-            if (metadata('item', 'has thumbnail')) {
-                $itemLinkContent .= item_image('thumbnail', array('alt' => ''));
-            }
-        ?>
-        <h2><?php echo link_to_item($itemLinkContent, array('class' => 'permalink')); ?></h2>
+    <?php $hasThumb = metadata('item', 'has thumbnail'); ?>
+    <div class="item hentry<?php echo $hasThumb ? ' has-thumb' : ''; ?>">
+        <?php if ($hasThumb): ?>
+        <div class="item-img">
+            <?php echo link_to_item(item_image('thumbnail', array('alt' => '')), array('tabindex' => '-1', 'aria-hidden' => 'true')); ?>
+        </div>
+        <?php endif; ?>
+
+        <div class="item-body">
+        <h2><?php echo link_to_item(metadata('item', array('Dublin Core', 'Title')), array('class' => 'permalink')); ?></h2>
 
         <?php if ($creator = metadata('item', array('Dublin Core', 'Creator'))): ?>
         <p class="item-creator"><?php echo $creator; ?></p>
@@ -55,11 +57,12 @@ echo head(array('title' => $pageTitle, 'bodyclass' => 'items browse'));
 
         <?php if (metadata('item', 'has tags')): ?>
         <div class="tags">
-            <?php echo tag_string('items'); ?>
+            <?php echo tag_string('items', 'items/browse', ' '); ?>
         </div>
         <?php endif; ?>
 
         <?php fire_plugin_hook('public_items_browse_each', array('view' => $this, 'item' => $item)); ?>
+        </div>
     </div>
     <?php endforeach; ?>
 </div>

@@ -21,6 +21,7 @@ var NessiaTheme = (function ($) {
         _ensureSearchSubmitLabel();
         _expandFileViewers();
         _setupHeaderShrink();
+        _setupAdvancedSearch();
     }
 
     /**
@@ -141,7 +142,7 @@ var NessiaTheme = (function ($) {
         });
     }
 
-function _setupHeaderShrink() {
+    function _setupHeaderShrink() {
         var $header = $('header[role="banner"]');
         if (!$header.length) {
             return;
@@ -157,14 +158,8 @@ function _setupHeaderShrink() {
         });
     }
 
-    return {
-        init: init
-    };
-
-})(jQuery);
-
     // Advanced Search panel toggle — accessible, uses HTML hidden attribute.
-    (function () {
+    function _setupAdvancedSearch() {
         var container = document.getElementById('search-container');
         if (!container) return;
 
@@ -225,5 +220,10 @@ function _setupHeaderShrink() {
                 closePanel();
             }
         });
-    })();
+    }
 
+    return {
+        init: init
+    };
+
+})(jQuery);
