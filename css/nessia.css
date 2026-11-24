@@ -40,6 +40,31 @@
 }
 
 /* Lapis Indigo */
+/* Kapitan — ivory lime-wash, finial gold, deep navy, roof terracotta */
+.nessia-scheme-kapitan {
+    --nessia-primary:        #15274c;
+    --nessia-primary-light:  #22386a;
+    --nessia-accent:         #b8913a;
+    --nessia-accent-light:   #d1ad5e;
+    --nessia-accent-dark:    #806020;
+    --nessia-bg:             #fbf9f3;
+    --nessia-bg-alt:         #f1ece0;
+    --nessia-surface:        #ffffff;
+    --nessia-text:           #1f2a44;
+    --nessia-text-muted:     #4f5a73;
+    --nessia-text-on-dark:   #f3efe4;
+    --nessia-border:         #dcd5c4;
+    --nessia-border-light:   #ebe5d6;
+    --nessia-header-bg:      #15274c;
+    --nessia-nav-bg:         #fbf9f3;
+    --nessia-footer-bg:      #15274c;
+    --nessia-link:           #2c4a8a;
+    --nessia-link-hover:     #a9482a;
+    --nessia-featured-bg:    #fdfbf6;
+    --nessia-tag-bg:         #f1ece0;
+    --nessia-tag-text:       #5a4a2a;
+}
+
 .nessia-scheme-indigo {
     --nessia-primary:        #0d1b2a;
     --nessia-primary-light:  #1b2d45;

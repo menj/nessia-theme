@@ -110,7 +110,7 @@ function nessia_multilingual_names()
 function nessia_colour_scheme()
 {
     $scheme = nessia_option('colour_scheme');
-    $allowed = array('gold', 'indigo', 'sand');
+    $allowed = array('gold', 'indigo', 'sand', 'kapitan');
     if (!$scheme || !in_array($scheme, $allowed, true)) {
         $scheme = 'gold';
     }
