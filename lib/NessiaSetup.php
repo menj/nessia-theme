@@ -14,6 +14,30 @@
  */
 class NessiaSetup
 {
+    /**
+     * Run $fn while holding a MySQL named lock, so only one request at a
+     * time seeds categories or writes Identifiers. GET_LOCK is atomic across
+     * connections. With $wait = 0 a busy lock means "someone else is on it":
+     * the call returns false and does nothing.
+     *
+     * @param callable $fn
+     * @param int $wait Seconds to wait for the lock.
+     * @return mixed|false Result of $fn, or false if the lock was busy.
+     */
+    public function withLock($fn, $wait = 0)
+    {
+        $db = get_db();
+        $name = 'nessia_setup_' . $db->prefix;
+        if ((int) $db->fetchOne('SELECT GET_LOCK(?, ?)', array($name, (int) $wait)) !== 1) {
+            return false;
+        }
+        try {
+            return call_user_func($fn);
+        } finally {
+            $db->query('SELECT RELEASE_LOCK(?)', array($name));
+        }
+    }
+
     protected function _categories()
     {
         return include dirname(dirname(__FILE__)) . '/data/categories.php';
@@ -392,14 +416,25 @@ class NessiaSetup
     public function slugs($dryRun, $limit = 0)
     {
         $db = get_db();
+        $reserved = array();
         $ids = $this->_identifierElement();
         $titleEl = $db->getTable('Element')->findByElementSetNameAndElementName('Dublin Core', 'Title');
         $out = array('rows' => array(), 'skipped' => 0);
         if (!$ids || !$titleEl) {
             return $out;
         }
-        $reserved = array();
+        $out['missing'] = 0;
         foreach (array('Collection', 'Item') as $type) {
+            // Every Identifier already used by this record type, in one query,
+            // so choosing unique names needs no further lookups.
+            $taken = array();
+            foreach ($db->fetchCol(
+                "SELECT text FROM {$db->ElementText} WHERE record_type = ? AND element_id = ?",
+                array($type, $ids->id)
+            ) as $text) {
+                $taken[(string) $text] = true;
+            }
+            $reserved[$type] = $taken;
             $table = $type === 'Item' ? $db->Item : $db->Collection;
             $rows = $db->fetchAll(
                 "SELECT r.id, t.text AS title,
@@ -426,15 +461,20 @@ class NessiaSetup
                 if ($title === '') {
                     continue;
                 }
-                $slug = $this->_uniqueSlug($title, $type, $ids->id, $reserved);
+                $out['missing']++;
+                if ($limit && count($out['rows']) >= $limit) {
+                    continue; // keep counting, stop listing/writing
+                }
+                $slug = $this->_uniqueSlug($title, $type, $reserved);
                 $reserved[$type][$slug] = true;
-                $out['rows'][] = array('type' => $type, 'id' => (int) $row['id'], 'title' => $title, 'slug' => $slug);
                 if (!$dryRun) {
+                    // Re-check inside the lock: another request may have named it.
+                    if ($this->_hasIdentifier($row['id'], $type, $ids->id)) {
+                        continue;
+                    }
                     $this->_writeIdentifier($row['id'], $type, $ids->id, $slug);
                 }
-                if ($limit && count($out['rows']) >= $limit) {
-                    return $out;
-                }
+                $out['rows'][] = array('type' => $type, 'id' => (int) $row['id'], 'title' => $title, 'slug' => $slug);
             }
         }
         return $out;
@@ -479,19 +519,15 @@ class NessiaSetup
      * Lower-case, ASCII, hyphenated, at most 80 characters, unique among
      * identifiers of the same record type.
      */
-    protected function _uniqueSlug($title, $type, $elementId, array $reserved = array())
+    protected function _uniqueSlug($title, $type, array $reserved)
     {
         $base = $this->_slugify($title);
         if ($base === '') {
             $base = strtolower($type);
         }
-        $db = get_db();
         $slug = $base;
         $n = 2;
-        while (!empty($reserved[$type][$slug]) || $db->fetchOne(
-            "SELECT id FROM {$db->ElementText} WHERE record_type = ? AND element_id = ? AND text = ? LIMIT 1",
-            array($type, $elementId, $slug)
-        )) {
+        while (!empty($reserved[$type][$slug])) {
             $slug = $base . '-' . $n++;
         }
         return $slug;

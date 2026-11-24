@@ -7,7 +7,8 @@ $result = nessia_tools_handle_post();
 $setup = nessia_setup();
 $inventory = $setup->inventory();
 $preview = $setup->migrate(true);
-$slugPreview = $setup->slugs(true);
+// Preview lists the first 100; 'missing' still counts them all.
+$slugPreview = $setup->slugs(true, 100);
 $token = nessia_tools_token();
 $categories = nessia_categories();
 
@@ -51,17 +52,20 @@ echo head(array('title' => __('Archive tools'), 'bodyclass' => 'nessia-tools-pag
     <?php if (empty($slugPreview['rows'])): ?>
         <p class="nessia-tool-ok"><?php echo __('Every collection and item has an Identifier.'); ?></p>
     <?php else: ?>
-        <p><?php echo __('%1$s record(s) still need an Identifier; %2$s already have one.', count($slugPreview['rows']), (int) $slugPreview['skipped']); ?></p>
+        <p><?php echo __('%1$s record(s) still need an Identifier; %2$s already have one.', (int) $slugPreview['missing'], (int) $slugPreview['skipped']); ?></p>
         <div class="nessia-table-wrap">
         <table class="nessia-table">
             <thead><tr><th><?php echo __('Record'); ?></th><th><?php echo __('Title'); ?></th><th><?php echo __('Identifier'); ?></th></tr></thead>
             <tbody>
-            <?php foreach (array_slice($slugPreview['rows'], 0, 100) as $row): ?>
+            <?php foreach ($slugPreview['rows'] as $row): ?>
                 <tr><td><?php echo html_escape(__($row['type']) . ' #' . $row['id']); ?></td><td><?php echo html_escape($row['title']); ?></td><td><code><?php echo html_escape($row['slug']); ?></code></td></tr>
             <?php endforeach; ?>
             </tbody>
         </table>
         </div>
+        <?php if ($slugPreview['missing'] > count($slugPreview['rows'])): ?>
+        <p class="nessia-tools-lead"><?php echo __('Showing the first %1$s of %2$s.', count($slugPreview['rows']), (int) $slugPreview['missing']); ?></p>
+        <?php endif; ?>
         <form method="post">
             <input type="hidden" name="nessia_token" value="<?php echo html_escape($token); ?>">
             <button type="submit" name="nessia_action" value="identifiers"><?php echo __('Write all Identifiers now'); ?></button>
