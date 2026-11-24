@@ -32,6 +32,8 @@ function nessia_option_defaults()
         'mission_text'             => 'Preserving the sources of <strong>Semitic religion, language and heritage</strong> for scholars, students and every curious reader.',
         'mission_button_label'     => 'Browse the archive',
         'mission_button_url'       => '',
+        'donate_url'               => '',
+        'donate_label'             => 'Donate',
     );
 }
 
@@ -570,8 +572,13 @@ function nessia_mission_band()
     }
     $html = '<section class="nessia-mission"><div class="nessia-mission-inner">'
         . '<p class="nessia-mission-text">' . $text . '</p>';
+    $buttons = '';
     if ($label !== '') {
-        $html .= '<a class="nessia-mission-btn" href="' . html_escape($url) . '">' . html_escape($label) . '</a>';
+        $buttons .= '<a class="nessia-mission-btn" href="' . html_escape($url) . '">' . html_escape($label) . '</a>';
+    }
+    $buttons .= nessia_donate_button('band');
+    if ($buttons !== '') {
+        $html .= '<div class="nessia-mission-actions">' . $buttons . '</div>';
     }
     return $html . '</div></section>';
 }
@@ -589,4 +596,32 @@ function nessia_footer_explore()
         $html .= '<li><a href="' . html_escape(nessia_category_url($cat['title'])) . '">' . html_escape(__($cat['title'])) . '</a></li>';
     }
     return $html;
+}
+
+/**
+ * Donate button (header and mission band). Hidden until a link is set
+ * in Theme Settings, Footer & Support, "Donate Link".
+ *
+ * @param string $context 'header' or 'band'
+ * @return string HTML
+ */
+function nessia_donate_button($context = 'header')
+{
+    $url = trim((string) nessia_option('donate_url'));
+    if ($url === '') {
+        return '';
+    }
+    if (!preg_match('#^(https?:)?//#i', $url) && strpos($url, '/') !== 0) {
+        $url = url($url);
+    }
+    $label = trim((string) nessia_option('donate_label'));
+    if ($label === '') {
+        $label = __('Donate');
+    }
+    $svg = file_get_contents(dirname(__FILE__) . '/images/donate.svg');
+    $svg = preg_replace('/<svg\b/', '<svg aria-hidden="true" focusable="false" width="20" height="20"', $svg, 1);
+    $external = preg_match('#^(https?:)?//#i', $url) && strpos($url, (string) parse_url(WEB_ROOT, PHP_URL_HOST)) === false;
+    return '<a class="nessia-donate nessia-donate--' . html_escape($context) . '" href="' . html_escape($url) . '"'
+        . ($external ? ' target="_blank" rel="noopener"' : '') . '>'
+        . $svg . '<span class="nessia-donate-label">' . html_escape($label) . '</span></a>';
 }

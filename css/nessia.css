@@ -3520,3 +3520,131 @@ header[role="banner"][style*="background-image"] > * {
 .nessia-footer-col ul.nessia-social {
     display: flex;
 }
+
+
+/* ==========================================================================
+   Donate button (images/donate.svg)
+   ========================================================================== */
+
+.nessia-donate {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    flex: none;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border-radius: 999px;
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.nessia-donate svg {
+    display: block;
+    flex: none;
+}
+
+.nessia-donate:hover,
+.nessia-donate:focus-visible {
+    text-decoration: none;
+    transform: translateY(-1px);
+}
+
+/* Header: outline pill after the search box */
+.nessia-brand {
+    margin-right: auto;
+}
+
+.nessia-donate--header {
+    order: 3;
+    padding: 0.5em 1.1em 0.5em 0.85em;
+    color: var(--nessia-accent-light);
+    border: 1.5px solid var(--nessia-accent);
+}
+
+.nessia-donate--header:hover,
+.nessia-donate--header:focus-visible {
+    background: var(--nessia-accent);
+    border-color: var(--nessia-accent);
+    color: var(--nessia-primary);
+}
+
+/* Mission band: second button beside "Browse the archive" */
+.nessia-mission-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75em;
+    justify-self: start;
+}
+
+.nessia-donate--band {
+    padding: 0.7em 1.5em 0.7em 1.15em;
+    color: #fff;
+    border: 1.5px solid rgba(255,255,255,0.55);
+    border-radius: 6px;
+    font-size: 0.8125rem;
+}
+
+.nessia-donate--band:hover,
+.nessia-donate--band:focus-visible {
+    background: #fff;
+    border-color: #fff;
+    color: var(--nessia-primary);
+}
+
+/* Phones: icon-only in the header, sitting top-right */
+@media screen and (max-width: 767px) {
+    .nessia-donate--header {
+        position: absolute;
+        top: 1em;
+        right: 1em;
+        padding: 0.5em;
+    }
+
+    .nessia-donate--header .nessia-donate-label {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+    }
+
+    header[role="banner"] {
+        position: relative;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .nessia-donate:hover,
+    .nessia-donate:focus-visible {
+        transform: none;
+    }
+}
+
+@media screen and (max-width: 767px) {
+    /* Room for the icon-only Donate button in the top-right corner */
+    .nessia-titles {
+        padding-right: 2.75em;
+    }
+
+    /* Search: box on its own row, buttons below */
+    #search-container form {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5em;
+        margin: 0;
+    }
+
+    #search-container form input[type="text"] {
+        flex: 1 1 100%;
+        width: 100%;
+    }
+
+    #search-container form > button {
+        flex: 1 1 0;
+    }
+}
