@@ -164,3 +164,30 @@ function nessia_header_bg()
     return null;
 }
 
+
+/**
+ * Classify an item's files so the viewer can be styled to suit them.
+ *
+ * @param array $files File records.
+ * @return string audio|video|image|document|mixed
+ */
+function nessia_item_media_type($files)
+{
+    $types = array();
+    foreach ((array) $files as $file) {
+        $mime = (string) $file->mime_type;
+        if (strpos($mime, 'audio/') === 0) {
+            $types['audio'] = true;
+        } elseif (strpos($mime, 'video/') === 0) {
+            $types['video'] = true;
+        } elseif (strpos($mime, 'image/') === 0) {
+            $types['image'] = true;
+        } else {
+            $types['document'] = true;
+        }
+    }
+    if (count($types) === 1) {
+        return key($types);
+    }
+    return $types ? 'mixed' : 'document';
+}

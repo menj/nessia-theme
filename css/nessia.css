@@ -1261,6 +1261,136 @@ header[role="banner"].nessia-header-compact {
     display: block;
 }
 
+/* -- Redundant metadata on item pages --
+   The title is already the page heading, and the element set name
+   ("Dublin Core") means nothing to visitors. */
+.items.show .element-set > h2,
+.items.show #dublin-core-title {
+    display: none;
+}
+
+/* -- Audio items: light card, full-width player -- */
+#itemfiles.nessia-media-audio {
+    background: var(--nessia-surface);
+    border: 1px solid var(--nessia-border-light);
+    border-radius: 8px;
+    padding: 1.25em 1.5em;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+}
+
+#itemfiles.nessia-media-audio::before {
+    left: 0;
+    right: 0;
+    border-radius: 8px 8px 0 0;
+}
+
+#itemfiles.nessia-media-audio .element-text {
+    background: none;
+    border-radius: 0;
+    overflow: visible;
+}
+
+#itemfiles.nessia-media-audio .item-file + .item-file {
+    margin-top: 0.75em;
+}
+
+#itemfiles audio {
+    display: block;
+    width: 100%;
+    height: 48px;
+}
+
+.nessia-audio-head {
+    display: flex;
+    align-items: center;
+    gap: 0.875em;
+    margin-bottom: 1em;
+}
+
+.nessia-audio-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--nessia-primary);
+    color: var(--nessia-accent-light);
+}
+
+.nessia-audio-meta {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.3;
+}
+
+.nessia-audio-label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--nessia-accent-dark);
+}
+
+.nessia-audio-creator {
+    font-size: 0.9375rem;
+    color: var(--nessia-text);
+}
+
+/* -- Video items: no forced document height -- */
+#itemfiles.nessia-media-video video {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 80vh;
+}
+
+#itemfiles.nessia-media-video iframe,
+#itemfiles.nessia-media-video embed,
+#itemfiles.nessia-media-video object,
+#itemfiles.nessia-media-audio iframe,
+#itemfiles.nessia-media-audio embed,
+#itemfiles.nessia-media-audio object {
+    min-height: 0;
+}
+
+/* -- Download links under media -- */
+.nessia-file-downloads {
+    list-style: none;
+    margin: 1em 0 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5em;
+}
+
+#itemfiles:not(.nessia-media-audio) .nessia-file-downloads {
+    padding: 0.5em 0.75em 0.25em;
+}
+
+.nessia-file-downloads a {
+    display: inline-block;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    padding: 0.4em 0.9em;
+    border: 1px solid var(--nessia-border);
+    border-radius: 999px;
+    color: var(--nessia-link);
+    background: var(--nessia-surface);
+    text-decoration: none;
+}
+
+.nessia-file-downloads a:hover {
+    border-color: var(--nessia-accent);
+    color: var(--nessia-accent-dark);
+}
+
+.nessia-file-name {
+    font-weight: 400;
+    color: var(--nessia-text-muted);
+}
+
 #show-sidebar {
     background: var(--nessia-bg-alt);
     border-radius: 6px;

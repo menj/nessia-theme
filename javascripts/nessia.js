@@ -134,6 +134,8 @@ var NessiaTheme = (function ($) {
         var $container = $('#itemfiles');
         if (!$container.length) return;
 
+        if ($container.is('.nessia-media-audio, .nessia-media-video')) return;
+
         $container.find('iframe, embed, object').each(function () {
             this.removeAttribute('width');
             this.removeAttribute('height');
