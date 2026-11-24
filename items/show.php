@@ -25,10 +25,14 @@ $nessiaMedia = nessia_item_media_type($nessiaFiles);
     </div>
     <?php endif; ?>
     <div class="element-text"><?php echo files_for_item(); ?></div>
-    <?php if (in_array($nessiaMedia, array('audio', 'video'), true)): ?>
+    <?php if ($nessiaMedia !== 'image'): ?>
     <ul class="nessia-file-downloads">
         <?php foreach ($nessiaFiles as $file): ?>
-        <li><a href="<?php echo html_escape($file->getWebPath('original')); ?>" download><?php echo __('Download'); ?> <span class="nessia-file-name"><?php echo html_escape($file->original_filename); ?></span></a></li>
+        <?php $fileUrl = $file->getWebPath('original'); ?>
+        <?php if ($file->mime_type === 'application/pdf'): ?>
+        <li><a href="<?php echo html_escape($fileUrl); ?>" target="_blank" rel="noopener"><?php echo __('Open PDF'); ?></a></li>
+        <?php endif; ?>
+        <li><a href="<?php echo html_escape($fileUrl); ?>" download><?php echo __('Download'); ?> <span class="nessia-file-name"><?php echo html_escape($file->original_filename); ?></span></a></li>
         <?php endforeach; ?>
     </ul>
     <?php endif; ?>
