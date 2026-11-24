@@ -62,54 +62,10 @@
             <div id="search-container" role="search">
                 <?php
                     $showAdvanced = (bool) nessia_option('use_advanced_search');
-                    $formClass = ($showAdvanced) ? 'with-advanced' : '';
-                    $searchFormHtml = search_form(array(
-                        'show_advanced' => $showAdvanced,
-                        'form_attributes' => array('class' => $formClass)
+                    echo search_form(array(
+                        'show_advanced'   => $showAdvanced,
+                        'form_attributes' => array('class' => $showAdvanced ? 'with-advanced' : ''),
                     ));
-
-                    $searchLabel = __('Search');
-                    $advLabel    = __('Advanced search');
-
-                    // --- Accessible submit label ---
-                    // 1) <input type="submit">: ensure value + aria-label.
-                    $searchFormHtml = preg_replace(
-                        '/(<input\s+[^>]*type=["\']submit["\'][^>]*)(?:\s+value=["\'][^"\']*["\'])?([^>]*>)/i',
-                        '$1 value="' . html_escape($searchLabel) . '" aria-label="' . html_escape($searchLabel) . '"$2',
-                        $searchFormHtml,
-                        1
-                    );
-
-                    // 2) <button type="submit"></button>: inject text + aria-label.
-                    $searchFormHtml = preg_replace(
-                        '/(<button\s+[^>]*type=["\']submit["\'])([^>]*>)(\s*?)<\/button>/i',
-                        '$1 aria-label="' . html_escape($searchLabel) . '"$2' . html_escape($searchLabel) . '</button>',
-                        $searchFormHtml,
-                        1
-                    );
-
-                    // --- Replace "Advanced Search" link with an accessible toggle button ---
-                    // Omeka typically outputs: <div class="advanced"><a href="...">Advanced Search</a></div>
-                    // We replace the <a> with a <button> that has proper ARIA attributes.
-                    $searchFormHtml = preg_replace(
-                        '/<div\s+class=["\']advanced["\'][^>]*>\s*<a\b[^>]*>[^<]*<\/a>\s*<\/div>/i',
-                        '<button type="button" class="advanced-toggle" id="advanced-toggle"'
-                        . ' aria-controls="advanced-form" aria-expanded="false">'
-                        . html_escape($advLabel) . '</button>',
-                        $searchFormHtml,
-                        1
-                    );
-
-                    // --- Add accessibility attributes to #advanced-form ---
-                    // Set role, aria-labelledby, and hidden (default closed).
-                    $searchFormHtml = preg_replace(
-                        '/(<(?:div|fieldset)\s+[^>]*id=["\']advanced-form["\'])([^>]*>)/i',
-                        '$1 role="group" aria-labelledby="advanced-toggle" hidden$2',
-                        $searchFormHtml,
-                        1
-                    );
-
-                    echo $searchFormHtml;
                 ?>
             </div>
         </div>

@@ -32,7 +32,6 @@ var NessiaTheme = (function ($) {
         _setupMobileNav();
         _setupSmoothScroll();
         _setupSearchToggle();
-        _ensureSearchSubmitLabel();
         _expandFileViewers();
         _setupHeaderShrink();
         _setupAdvancedSearch();
@@ -103,51 +102,6 @@ var NessiaTheme = (function ($) {
      */
     
     /**
-     * Ensure search controls have accessible labels.
-     * Handles submit text, aria-label, and visually-hidden label for the input.
-     */
-    function _ensureSearchSubmitLabel() {
-        var label = i18n.search;
-
-        // --- Submit input ---
-        var $submitInput = $('#search-container input[type="submit"]');
-        if ($submitInput.length) {
-            if (!($submitInput.val() || '').trim()) {
-                $submitInput.val(label);
-            }
-            if (!$submitInput.attr('aria-label')) {
-                $submitInput.attr('aria-label', label);
-            }
-        }
-
-        // --- Submit button ---
-        var $submitBtn = $('#search-container button[type="submit"]');
-        if ($submitBtn.length) {
-            if (!($submitBtn.text() || '').trim()) {
-                $submitBtn.text(label);
-            }
-            if (!$submitBtn.attr('aria-label')) {
-                $submitBtn.attr('aria-label', label);
-            }
-        }
-
-        // --- Ensure search text input has an accessible name ---
-        var $searchInput = $('#search-container input[type="text"]');
-        if ($searchInput.length) {
-            var inputId = $searchInput.attr('id');
-            if (!inputId) {
-                inputId = 'search-q';
-                $searchInput.attr('id', inputId);
-            }
-            // Only inject label if none is associated
-            if (!$('label[for="' + inputId + '"]').length) {
-                $('<label class="sr-only" for="' + inputId + '">' + label + '</label>')
-                    .insertBefore($searchInput);
-            }
-        }
-    }
-
-    /**
      * Force file viewers (iframe, embed, object) in #itemfiles to fill their
      * container. Omeka plugins often set inline width/height attributes that
      * prevent CSS from taking effect.
@@ -196,9 +150,7 @@ var NessiaTheme = (function ($) {
 
         var panel = document.getElementById('advanced-form');
         // Accept our PHP-injected button, or fall back to Omeka's link variant.
-        var toggle = document.getElementById('advanced-toggle')
-            || container.querySelector('.advanced-toggle')
-            || container.querySelector('.advanced a');
+        var toggle = document.getElementById('advanced-toggle');
 
         if (!panel || !toggle) return;
 

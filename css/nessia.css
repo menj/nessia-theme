@@ -2587,3 +2587,17 @@ header[role="banner"][style*="background-image"] > * {
         scroll-behavior: auto !important;
     }
 }
+
+
+/* -- Advanced search panel extras (search/search-form.php) -- */
+#advanced-form .nessia-check {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    margin-bottom: 0.25em;
+}
+
+#advanced-form .nessia-items-search-link {
+    margin: 0.75em 0 0;
+    font-size: 0.8125rem;
+}
