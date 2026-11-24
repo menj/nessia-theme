@@ -7,6 +7,29 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.3.0] — 2026-11-24
+### Added
+- Homepage template (`index.php`): intro text, featured item, recent items.
+- Exhibit Builder browse override with card layout and featured badge.
+- Dedicated audio/video presentation on item pages with download links.
+- Editorial styling for Simple Pages, tile grid for subject/collection lists, redesigned contact form.
+- `nessia_option()` defaults so the theme works without saving settings.
+
+### Fixed
+- Advanced search toggle never initialised (ran before DOM ready).
+- Mega menu targeted `#top-nav` instead of `#primary-nav`.
+- Browse thumbnails overflowing cards; featured item text squeezed; tag commas.
+- Link hover and muted text colours now meet WCAG AA contrast.
+- Header shrink scroll handler throttled; smooth scroll respects reduced motion.
+
+### Changed
+- Inline footer script moved to `nessia.js`; JS strings translatable.
+- Dates use Omeka `format_date()` (locale aware).
+- Image items no longer forced into 80vh viewer; header background image gets an overlay.
+
+### Removed
+- Non-functional "Items Per Page" setting (use Omeka Settings instead).
+
 ## [1.2.7] — 2026-02-14
 ### Changed
 - File viewer restyled as a showcase frame: deep primary-coloured surround with rounded corners, a decorative gold gradient accent rule along the top, layered box shadow, and a dark inner container that clips the embed cleanly. Evokes the feel of a manuscript displayed in an archival setting.

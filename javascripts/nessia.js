@@ -5,7 +5,7 @@
  * https://nessia.org
  *
  * @package NESSIA
- * @version 1.2.7
+ * @version 1.3.0
  */
 
 var NessiaTheme = (function ($) {
@@ -14,7 +14,21 @@ var NessiaTheme = (function ($) {
     /**
      * Initialise all theme components.
      */
+    var i18n = { search: 'Search', menu: 'Menu' };
+
+    function _loadStrings() {
+        var wrap = document.getElementById('wrap');
+        if (!wrap) return;
+        i18n.search = wrap.getAttribute('data-i18n-search') || i18n.search;
+        i18n.menu = wrap.getAttribute('data-i18n-menu') || i18n.menu;
+    }
+
+    function _prefersReducedMotion() {
+        return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    }
+
     function init() {
+        _loadStrings();
         _setupMobileNav();
         _setupSmoothScroll();
         _setupSearchToggle();
@@ -32,15 +46,16 @@ var NessiaTheme = (function ($) {
         if (!$nav.length) {
             return;
         }
-        var $toggle = $('<button class="nessia-nav-toggle" aria-label="Toggle navigation" aria-expanded="false">' +
-            '<span class="nessia-hamburger"></span>' +
+        var $toggle = $('<button type="button" class="nessia-nav-toggle" aria-controls="primary-nav" aria-expanded="false">' +
+            '<span class="nessia-hamburger" aria-hidden="true"></span>' +
             '</button>');
+        $toggle.attr('aria-label', i18n.menu);
 
         $nav.before($toggle);
 
         $toggle.on('click', function () {
             var expanded = $(this).attr('aria-expanded') === 'true';
-            $(this).attr('aria-expanded', !expanded);
+            $(this).attr('aria-expanded', String(!expanded));
             $nav.toggleClass('nessia-nav-open');
             $(this).toggleClass('nessia-nav-toggle-active');
         });
@@ -51,12 +66,19 @@ var NessiaTheme = (function ($) {
      */
     function _setupSmoothScroll() {
         $('a[href^="#"]').not('#skipnav').on('click', function (e) {
-            var target = $(this.getAttribute('href'));
-            if (target.length) {
-                e.preventDefault();
-                $('html, body').animate({
-                    scrollTop: target.offset().top - 80
-                }, 400);
+            var href = this.getAttribute('href');
+            if (href.length < 2) return;
+            var target;
+            try { target = $(href); } catch (err) { return; }
+            if (!target.length) return;
+            e.preventDefault();
+            var headerH = $('header[role="banner"]').outerHeight() || 0;
+            var navH = $('#primary-nav').outerHeight() || 0;
+            var top = target.offset().top - (headerH + navH) - 16;
+            if (_prefersReducedMotion()) {
+                window.scrollTo(0, top);
+            } else {
+                $('html, body').animate({ scrollTop: top }, 400);
             }
         });
     }
@@ -85,7 +107,7 @@ var NessiaTheme = (function ($) {
      * Handles submit text, aria-label, and visually-hidden label for the input.
      */
     function _ensureSearchSubmitLabel() {
-        var label = 'Search';
+        var label = i18n.search;
 
         // --- Submit input ---
         var $submitInput = $('#search-container input[type="submit"]');
@@ -134,7 +156,7 @@ var NessiaTheme = (function ($) {
         var $container = $('#itemfiles');
         if (!$container.length) return;
 
-        if ($container.is('.nessia-media-audio, .nessia-media-video')) return;
+        if (!$container.is('.nessia-media-document, .nessia-media-mixed')) return;
 
         $container.find('iframe, embed, object').each(function () {
             this.removeAttribute('width');
@@ -151,13 +173,20 @@ var NessiaTheme = (function ($) {
         }
         var scrollThreshold = 60;
 
-        $(window).on('scroll', function () {
-            if ($(this).scrollTop() > scrollThreshold) {
-                $header.addClass('nessia-header-compact');
-            } else {
-                $header.removeClass('nessia-header-compact');
+        var ticking = false;
+
+        function update() {
+            $header.toggleClass('nessia-header-compact', window.pageYOffset > scrollThreshold);
+            ticking = false;
+        }
+
+        window.addEventListener('scroll', function () {
+            if (!ticking) {
+                ticking = true;
+                window.requestAnimationFrame(update);
             }
-        });
+        }, { passive: true });
+        update();
     }
 
     // Advanced Search panel toggle — accessible, uses HTML hidden attribute.
@@ -229,3 +258,11 @@ var NessiaTheme = (function ($) {
     };
 
 })(jQuery);
+
+jQuery(function () {
+    if (window.Omeka) {
+        if (typeof Omeka.skipNav === 'function') Omeka.skipNav();
+        if (typeof Omeka.megaMenu === 'function') Omeka.megaMenu('#primary-nav ul.navigation');
+    }
+    NessiaTheme.init();
+});

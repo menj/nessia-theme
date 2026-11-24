@@ -25,10 +25,10 @@ echo head(array('title' => $pageTitle, 'bodyclass' => 'items browse'));
     </div>
 <?php endif; ?>
 
-<?php if (count(get_random_featured_items()) > 0): ?>
+<?php if ($featuredHtml = random_featured_items(1)): ?>
 <div id="featured-item">
     <h2><?php echo __('Featured Item'); ?></h2>
-    <?php echo random_featured_items(1); ?>
+    <?php echo $featuredHtml; ?>
 </div>
 <?php endif; ?>
 

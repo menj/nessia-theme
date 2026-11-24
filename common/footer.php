@@ -33,13 +33,5 @@
 
     </div><!-- end #wrap -->
 
-    <script>
-    jQuery(document).ready(function() {
-        Omeka.skipNav();
-        Omeka.megaMenu('#primary-nav ul.navigation');
-        NessiaTheme.init();
-    });
-    </script>
-
 </body>
 </html>

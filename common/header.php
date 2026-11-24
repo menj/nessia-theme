@@ -35,7 +35,7 @@
     <a href="#content" id="skipnav"><?php echo __('Skip to Main Content'); ?></a>
     <?php fire_plugin_hook('public_body', array('view' => $this)); ?>
 
-<div id="wrap">
+<div id="wrap" data-i18n-search="<?php echo html_escape(__('Search')); ?>" data-i18n-menu="<?php echo html_escape(__('Menu')); ?>">
 
     <?php
         $headerBg = nessia_header_bg();

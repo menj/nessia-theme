@@ -129,11 +129,11 @@ function nessia_logo()
 /**
  * Format the date added for an item.
  *
- * @param string $format Date format string.
+ * @param string|null $format Zend_Date format (null = locale default).
  * @param object|null $item The item record.
  * @return string Formatted date.
  */
-function nessia_display_date_added($format = 'j F Y', $item = null)
+function nessia_display_date_added($format = null, $item = null)
 {
     if (!$item) {
         $item = get_current_record('item');
@@ -142,11 +142,7 @@ function nessia_display_date_added($format = 'j F Y', $item = null)
     if (!$dateAdded) {
         return '';
     }
-    $ts = strtotime($dateAdded);
-    if ($ts === false) {
-        return '';
-    }
-    return date($format, $ts);
+    return $format ? format_date($dateAdded, $format) : format_date($dateAdded);
 }
 
 /**

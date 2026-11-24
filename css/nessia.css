@@ -33,7 +33,7 @@
     --nessia-nav-bg:         #f5f2eb;
     --nessia-footer-bg:      #1a2744;
     --nessia-link:           #1a5276;
-    --nessia-link-hover:     #c4953a;
+    --nessia-link-hover:     #8a6620;
     --nessia-featured-bg:    #faf7f0;
     --nessia-tag-bg:         #eae5d9;
     --nessia-tag-text:       #5a5242;
@@ -58,7 +58,7 @@
     --nessia-nav-bg:         #f0f4f5;
     --nessia-footer-bg:      #0d1b2a;
     --nessia-link:           #1a5276;
-    --nessia-link-hover:     #3d7a80;
+    --nessia-link-hover:     #2d5e63;
     --nessia-featured-bg:    #f5f9fa;
     --nessia-tag-bg:         #e2e9eb;
     --nessia-tag-text:       #3d5a5e;
@@ -75,7 +75,7 @@
     --nessia-bg-alt:         #ede7dd;
     --nessia-surface:        #ffffff;
     --nessia-text:           #33291e;
-    --nessia-text-muted:     #7a6e60;
+    --nessia-text-muted:     #6b5f51;
     --nessia-text-on-dark:   #f0e8dc;
     --nessia-border:         #d9cfc1;
     --nessia-border-light:   #e8e0d3;
@@ -83,7 +83,7 @@
     --nessia-nav-bg:         #f7f3ee;
     --nessia-footer-bg:      #3b2f2f;
     --nessia-link:           #6b4226;
-    --nessia-link-hover:     #b07941;
+    --nessia-link-hover:     #8c602f;
     --nessia-featured-bg:    #fcf9f4;
     --nessia-tag-bg:         #ede7dd;
     --nessia-tag-text:       #5e5140;
@@ -2534,5 +2534,56 @@ img {
     #contact-form > .field,
     .contact #content form > .field {
         grid-column: 1 / -1 !important;
+    }
+}
+
+
+/* ==========================================================================
+   Image items — show at natural size, no forced document height
+   ========================================================================== */
+
+#itemfiles.nessia-media-image .element-text {
+    background: var(--nessia-bg-alt);
+    display: flex;
+    justify-content: center;
+}
+
+#itemfiles.nessia-media-image img {
+    max-height: 80vh;
+    width: auto;
+    margin: 0 auto;
+}
+
+
+/* ==========================================================================
+   Header background image — overlay keeps text readable
+   ========================================================================== */
+
+header[role="banner"][style*="background-image"] {
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+
+header[role="banner"][style*="background-image"]::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, var(--nessia-header-bg) 0%, rgba(0,0,0,0.45) 100%);
+    opacity: 0.85;
+    pointer-events: none;
+}
+
+header[role="banner"][style*="background-image"] > * {
+    position: relative;
+}
+
+
+/* Reduced motion: drop hover lifts and transitions */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        transition: none !important;
+        animation: none !important;
+        scroll-behavior: auto !important;
     }
 }
