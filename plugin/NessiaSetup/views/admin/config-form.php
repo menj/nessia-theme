@@ -46,6 +46,64 @@ if ($report && ($decoded = json_decode($report, true))) {
     </div>
 </div>
 
+<h2><?php echo __('Readable addresses'); ?></h2>
+
+<div class="field">
+    <div class="two columns alpha"><label><?php echo __('How it works'); ?></label></div>
+    <div class="inputs five columns omega">
+        <p class="explanation"><?php echo __('The Clean Url plugin builds addresses such as /comparative-religion/al-tawhid from each record\'s Dublin Core Identifier. This step fills in a readable Identifier, made from the title, for every collection and item that has none. Records that already have an Identifier are left alone.'); ?></p>
+    </div>
+</div>
+
+<div class="field">
+    <div class="two columns alpha"><label><?php echo __('Preview'); ?></label></div>
+    <div class="inputs five columns omega">
+        <?php if (empty($slugPreview['rows'])): ?>
+        <p><?php echo __('Every collection and item already has an Identifier.'); ?></p>
+        <?php else: ?>
+        <p><?php echo __('%1$s record(s) would get an Identifier; %2$s already have one.', count($slugPreview['rows']), (int) $slugPreview['skipped']); ?></p>
+        <table>
+            <thead><tr><th><?php echo __('Record'); ?></th><th><?php echo __('Title'); ?></th><th><?php echo __('Identifier'); ?></th></tr></thead>
+            <tbody>
+            <?php foreach (array_slice($slugPreview['rows'], 0, 100) as $row): ?>
+                <tr>
+                    <td><?php echo html_escape(__($row['type']) . ' #' . $row['id']); ?></td>
+                    <td><?php echo html_escape($row['title']); ?></td>
+                    <td><code><?php echo html_escape($row['slug']); ?></code></td>
+                </tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
+        <?php if (count($slugPreview['rows']) > 100): ?>
+        <p class="explanation"><?php echo __('…and %s more.', count($slugPreview['rows']) - 100); ?></p>
+        <?php endif; ?>
+        <?php endif; ?>
+    </div>
+</div>
+
+<div class="field">
+    <div class="two columns alpha"><label for="nessia_setup_slugs"><?php echo __('Write Identifiers'); ?></label></div>
+    <div class="inputs five columns omega">
+        <p class="explanation"><?php echo __('Writes the Identifiers listed above. Back up the database first.'); ?></p>
+        <?php echo get_view()->formCheckbox('nessia_setup_slugs', '1', array('checked' => false)); ?>
+    </div>
+</div>
+
+<div class="field">
+    <div class="two columns alpha"><label for="nessia_setup_auto_slug"><?php echo __('Name new records automatically'); ?></label></div>
+    <div class="inputs five columns omega">
+        <p class="explanation"><?php echo __('When a collection or item is saved without an Identifier, give it one from its title.'); ?></p>
+        <?php echo get_view()->formCheckbox('nessia_setup_auto_slug', '1', array('checked' => get_option('nessia_setup_auto_slug') === '1')); ?>
+    </div>
+</div>
+
+<?php if ($slugReport && ($sr = json_decode($slugReport, true))): ?>
+<div class="field">
+    <div class="two columns alpha"><label><?php echo __('Last run'); ?></label></div>
+    <div class="inputs five columns omega"><p><?php echo html_escape($sr['time']); ?>: <?php echo __('%s Identifier(s) written.', (int) $sr['count']); ?></p></div>
+</div>
+<?php endif; ?>
+
 <h2><?php echo __('Reorganise'); ?></h2>
 
 <div class="field">

@@ -625,3 +625,87 @@ function nessia_donate_button($context = 'header')
         . ($external ? ' target="_blank" rel="noopener"' : '') . '>'
         . $svg . '<span class="nessia-donate-label">' . html_escape($label) . '</span></a>';
 }
+
+/* ==========================================================================
+   SEO: canonical URL, description, Open Graph
+   ========================================================================== */
+
+/**
+ * Meta tags for <head>: canonical link, description and Open Graph.
+ * On item and collection pages the canonical is the record's own URL,
+ * which becomes the clean address once the Clean Url plugin is active.
+ *
+ * @param string|null $title Page title passed to head().
+ * @return string HTML
+ */
+function nessia_seo_meta($title = null)
+{
+    $request = Zend_Controller_Front::getInstance()->getRequest();
+    $controller = $request ? $request->getControllerName() : '';
+    $action = $request ? $request->getActionName() : '';
+    $siteTitle = strip_formatting(option('site_title'));
+    $description = trim(strip_formatting((string) option('description')));
+    $canonical = null;
+    $image = null;
+    $type = 'website';
+
+    $record = null;
+    if ($action === 'show' && $controller === 'items') {
+        $record = get_current_record('item', false);
+    } elseif ($action === 'show' && $controller === 'collections') {
+        $record = get_current_record('collection', false);
+    }
+
+    if ($record) {
+        $canonical = record_url($record, 'show', true);
+        $desc = metadata($record, array('Dublin Core', 'Description'), array('no_escape' => true));
+        if ($desc) {
+            $description = strip_formatting($desc);
+        }
+        if ($record instanceof Item) {
+            $type = 'article';
+            $file = $record->getFile(0);
+            if ($file && $file->hasThumbnail()) {
+                $image = $file->getWebPath('fullsize');
+            }
+        }
+    } else {
+        // Other pages: the current address without tracking or sort parameters.
+        $params = $_GET;
+        foreach (array_keys($params) as $key) {
+            if (!in_array($key, array('page', 'type', 'collection', 'tags', 'search'), true)) {
+                unset($params[$key]);
+            }
+        }
+        // WEB_ROOT is the configured site address, so a spoofed Host header cannot leak in.
+        $canonical = rtrim(WEB_ROOT, '/') . ($request ? $request->getPathInfo() : '/');
+        if ($params) {
+            $canonical .= '?' . http_build_query($params);
+        }
+    }
+
+    if (function_exists('mb_substr') && mb_strlen($description) > 160) {
+        $description = rtrim(mb_substr($description, 0, 157)) . '…';
+    }
+    $pageTitle = $title ? strip_formatting($title) . ' | ' . $siteTitle : $siteTitle;
+
+    $html = '';
+    if ($canonical) {
+        $html .= '<link rel="canonical" href="' . html_escape($canonical) . '">' . "\n";
+        $html .= '    <meta property="og:url" content="' . html_escape($canonical) . '">' . "\n";
+    }
+    if ($description !== '') {
+        $html .= '    <meta name="description" content="' . html_escape($description) . '">' . "\n";
+        $html .= '    <meta property="og:description" content="' . html_escape($description) . '">' . "\n";
+    }
+    $html .= '    <meta property="og:site_name" content="' . html_escape($siteTitle) . '">' . "\n";
+    $html .= '    <meta property="og:title" content="' . html_escape($pageTitle) . '">' . "\n";
+    $html .= '    <meta property="og:type" content="' . $type . '">' . "\n";
+    if ($image) {
+        $html .= '    <meta property="og:image" content="' . html_escape($image) . '">' . "\n";
+        $html .= '    <meta name="twitter:card" content="summary_large_image">' . "\n";
+    } else {
+        $html .= '    <meta name="twitter:card" content="summary">' . "\n";
+    }
+    return $html;
+}
