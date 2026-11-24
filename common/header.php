@@ -70,6 +70,8 @@
                 </div>
             </div>
 
+            <?php echo nessia_donate_button('header'); ?>
+
             <div id="search-container" role="search">
                 <?php
                     $showAdvanced = (bool) nessia_option('use_advanced_search');
