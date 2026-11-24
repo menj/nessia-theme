@@ -2213,3 +2213,326 @@ img {
         grid-template-columns: 88px minmax(0, 1fr);
     }
 }
+
+
+/* ==========================================================================
+   Static pages (Simple Pages) — editorial layout
+   ========================================================================== */
+
+.simple-page #primary,
+.simple-page #content > .simple-page-content {
+    max-width: 44em;
+    margin: 0 auto;
+    background: var(--nessia-surface);
+    border: 1px solid var(--nessia-border-light);
+    border-radius: 10px;
+    padding: 2.5em 3em 3em;
+    position: relative;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.04);
+}
+
+/* Gold accent rule across the top of the page card */
+.simple-page #primary::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: 3em;
+    width: 4em;
+    height: 3px;
+    background: var(--nessia-accent);
+    border-radius: 0 0 2px 2px;
+}
+
+/* Breadcrumb */
+.simple-page #primary > p:first-child,
+.simple-page .breadcrumbs {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--nessia-text-muted);
+    margin-bottom: 1.25em;
+}
+
+.simple-page #primary > p:first-child a {
+    color: var(--nessia-accent-dark);
+}
+
+.simple-page #primary h1 {
+    font-size: 2.25rem;
+    line-height: 1.2;
+    border-bottom: 0;
+    padding-bottom: 0;
+    margin-bottom: 0.75em;
+}
+
+/* Lead paragraph */
+.simple-page #primary h1 + p {
+    font-family: 'Noto Serif', serif;
+    font-size: 1.1875rem;
+    line-height: 1.7;
+    color: var(--nessia-primary);
+    padding-bottom: 1.5em;
+    margin-bottom: 1.5em;
+    border-bottom: 1px solid var(--nessia-border-light);
+}
+
+.simple-page #primary p,
+.simple-page #primary li {
+    font-size: 1rem;
+    line-height: 1.75;
+}
+
+.simple-page #primary h2,
+.simple-page #primary h3 {
+    font-family: 'Noto Serif', serif;
+    font-size: 1.3125rem;
+    color: var(--nessia-primary);
+    margin: 2em 0 0.6em;
+    padding-left: 0.75em;
+    border-left: 3px solid var(--nessia-accent);
+    line-height: 1.3;
+}
+
+.simple-page #primary blockquote {
+    margin: 1.75em 0;
+    padding: 1em 1.5em;
+    background: var(--nessia-featured-bg);
+    border-left: 3px solid var(--nessia-accent);
+    border-radius: 0 6px 6px 0;
+    font-family: 'Noto Serif', serif;
+    font-style: italic;
+}
+
+/* Inline Arabic / Hebrew / Syriac stand out a little */
+.simple-page #primary [lang="ar"],
+.simple-page #primary [lang="he"],
+.simple-page #primary [lang="syr"],
+.simple-page #primary [lang="arc"] {
+    color: var(--nessia-accent-dark);
+    font-size: 1.1em;
+}
+
+
+/* ==========================================================================
+   Subject / collection lists — tile grid
+   Applies to Collection Tree output and any simple page whose body is a
+   nested list of links.
+   ========================================================================== */
+
+#collection-tree > ul,
+.simple-page #primary > ul:only-of-type,
+#content > ul:first-child {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(15em, 1fr));
+    gap: 1em;
+}
+
+#collection-tree > ul > li,
+.simple-page #primary > ul:only-of-type > li,
+#content > ul:first-child > li {
+    list-style: none;
+    margin: 0;
+    background: var(--nessia-surface);
+    border: 1px solid var(--nessia-border-light);
+    border-top: 3px solid var(--nessia-accent);
+    border-radius: 8px;
+    padding: 1.25em 1.25em 1.1em;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+#collection-tree > ul > li:hover,
+.simple-page #primary > ul:only-of-type > li:hover,
+#content > ul:first-child > li:hover {
+    box-shadow: 0 6px 20px rgba(0,0,0,0.07);
+    transform: translateY(-2px);
+}
+
+#collection-tree > ul > li > a,
+.simple-page #primary > ul:only-of-type > li > a,
+#content > ul:first-child > li > a {
+    font-family: 'Noto Serif', serif;
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--nessia-primary);
+    text-decoration: none;
+    display: block;
+}
+
+#collection-tree > ul > li > a::after,
+.simple-page #primary > ul:only-of-type > li > a::after,
+#content > ul:first-child > li > a::after {
+    content: '→';
+    display: block;
+    margin-top: 0.6em;
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    color: var(--nessia-accent);
+    transition: transform 0.2s ease;
+}
+
+#collection-tree > ul > li:hover > a::after,
+.simple-page #primary > ul:only-of-type > li:hover > a::after,
+#content > ul:first-child > li:hover > a::after {
+    transform: translateX(4px);
+}
+
+/* Sub-collections become chips inside the tile */
+#collection-tree > ul > li ul,
+.simple-page #primary > ul:only-of-type > li ul,
+#content > ul:first-child > li ul {
+    list-style: none;
+    padding: 0;
+    margin: 0.75em 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35em;
+}
+
+#collection-tree > ul > li ul li,
+.simple-page #primary > ul:only-of-type > li ul li,
+#content > ul:first-child > li ul li {
+    margin: 0;
+}
+
+#collection-tree > ul > li ul a,
+.simple-page #primary > ul:only-of-type > li ul a,
+#content > ul:first-child > li ul a {
+    display: inline-block;
+    font-size: 0.75rem;
+    padding: 0.2em 0.65em;
+    background: var(--nessia-tag-bg);
+    color: var(--nessia-tag-text);
+    border-radius: 999px;
+    text-decoration: none;
+}
+
+#collection-tree > ul > li ul a:hover,
+.simple-page #primary > ul:only-of-type > li ul a:hover,
+#content > ul:first-child > li ul a:hover {
+    background: var(--nessia-accent);
+    color: #fff;
+}
+
+
+/* ==========================================================================
+   Contact form (Simple Contact Form plugin)
+   ========================================================================== */
+
+#contact-form,
+.contact #content form {
+    max-width: 44em;
+    background: var(--nessia-surface);
+    border: 1px solid var(--nessia-border-light);
+    border-top: 3px solid var(--nessia-accent);
+    border-radius: 10px;
+    padding: 2em 2.25em 2.25em;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.04);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25em 1.5em;
+}
+
+/* Every field spans full width by default; name + email share a row */
+#contact-form > *,
+.contact #content form > * {
+    grid-column: 1 / -1;
+    margin: 0;
+}
+
+#contact-form > .field:nth-of-type(1),
+#contact-form > .field:nth-of-type(2),
+.contact #content form > .field:nth-of-type(1),
+.contact #content form > .field:nth-of-type(2) {
+    grid-column: span 1;
+}
+
+#contact-form label,
+.contact #content form label {
+    display: block;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--nessia-accent-dark);
+    margin-bottom: 0.45em;
+}
+
+#contact-form input[type="text"],
+#contact-form input[type="email"],
+#contact-form textarea,
+.contact #content form input[type="text"],
+.contact #content form input[type="email"],
+.contact #content form textarea {
+    width: 100%;
+    background: var(--nessia-bg);
+    border: 1px solid transparent;
+    border-radius: 6px;
+    padding: 0.8em 1em;
+    font-size: 0.9375rem;
+    transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+#contact-form input:focus,
+#contact-form textarea:focus,
+.contact #content form input:focus,
+.contact #content form textarea:focus {
+    background: var(--nessia-surface);
+    border-color: var(--nessia-accent);
+    box-shadow: 0 0 0 3px rgba(196, 149, 58, 0.15);
+    outline: none;
+}
+
+#contact-form textarea,
+.contact #content form textarea {
+    min-height: 11em;
+    resize: vertical;
+}
+
+#contact-form input[type="submit"],
+#contact-form button,
+.contact #content form input[type="submit"],
+.contact #content form button {
+    justify-self: start;
+    padding: 0.85em 2em;
+    border-radius: 999px;
+    letter-spacing: 0.06em;
+}
+
+.contact #content > p:first-of-type,
+.contact #content h1 + p {
+    font-family: 'Noto Serif', serif;
+    font-size: 1.125rem;
+    color: var(--nessia-text-muted);
+    max-width: 36em;
+    margin-bottom: 1.75em;
+}
+
+@media screen and (max-width: 767px) {
+    .simple-page #primary {
+        padding: 1.75em 1.25em 2em;
+        border-radius: 8px;
+    }
+
+    .simple-page #primary::before {
+        left: 1.25em;
+    }
+
+    .simple-page #primary h1 {
+        font-size: 1.75rem;
+    }
+
+    #contact-form,
+    .contact #content form {
+        grid-template-columns: 1fr;
+        padding: 1.5em 1.25em;
+    }
+
+    #contact-form > .field,
+    .contact #content form > .field {
+        grid-column: 1 / -1 !important;
+    }
+}
