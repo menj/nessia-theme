@@ -5,7 +5,7 @@
  * https://nessia.org
  *
  * @package NESSIA
- * @version 1.2.7
+ * @version 1.3.0
  */
 
 var NessiaTheme = (function ($) {
@@ -14,13 +14,29 @@ var NessiaTheme = (function ($) {
     /**
      * Initialise all theme components.
      */
+    var i18n = { search: 'Search', menu: 'Menu', image: 'Image %1 of %2' };
+
+    function _loadStrings() {
+        var wrap = document.getElementById('wrap');
+        if (!wrap) return;
+        i18n.search = wrap.getAttribute('data-i18n-search') || i18n.search;
+        i18n.menu = wrap.getAttribute('data-i18n-menu') || i18n.menu;
+        i18n.image = wrap.getAttribute('data-i18n-image') || i18n.image;
+    }
+
+    function _prefersReducedMotion() {
+        return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    }
+
     function init() {
+        _loadStrings();
         _setupMobileNav();
         _setupSmoothScroll();
         _setupSearchToggle();
-        _ensureSearchSubmitLabel();
         _expandFileViewers();
         _setupHeaderShrink();
+        _setupAdvancedSearch();
+        _setupLightbox();
     }
 
     /**
@@ -31,15 +47,16 @@ var NessiaTheme = (function ($) {
         if (!$nav.length) {
             return;
         }
-        var $toggle = $('<button class="nessia-nav-toggle" aria-label="Toggle navigation" aria-expanded="false">' +
-            '<span class="nessia-hamburger"></span>' +
+        var $toggle = $('<button type="button" class="nessia-nav-toggle" aria-controls="primary-nav" aria-expanded="false">' +
+            '<span class="nessia-hamburger" aria-hidden="true"></span>' +
             '</button>');
+        $toggle.attr('aria-label', i18n.menu);
 
         $nav.before($toggle);
 
         $toggle.on('click', function () {
             var expanded = $(this).attr('aria-expanded') === 'true';
-            $(this).attr('aria-expanded', !expanded);
+            $(this).attr('aria-expanded', String(!expanded));
             $nav.toggleClass('nessia-nav-open');
             $(this).toggleClass('nessia-nav-toggle-active');
         });
@@ -50,12 +67,19 @@ var NessiaTheme = (function ($) {
      */
     function _setupSmoothScroll() {
         $('a[href^="#"]').not('#skipnav').on('click', function (e) {
-            var target = $(this.getAttribute('href'));
-            if (target.length) {
-                e.preventDefault();
-                $('html, body').animate({
-                    scrollTop: target.offset().top - 80
-                }, 400);
+            var href = this.getAttribute('href');
+            if (href.length < 2) return;
+            var target;
+            try { target = $(href); } catch (err) { return; }
+            if (!target.length) return;
+            e.preventDefault();
+            var headerH = $('header[role="banner"]').outerHeight() || 0;
+            var navH = $('#primary-nav').outerHeight() || 0;
+            var top = target.offset().top - (headerH + navH) - 16;
+            if (_prefersReducedMotion()) {
+                window.scrollTo(0, top);
+            } else {
+                $('html, body').animate({ scrollTop: top }, 400);
             }
         });
     }
@@ -80,51 +104,6 @@ var NessiaTheme = (function ($) {
      */
     
     /**
-     * Ensure search controls have accessible labels.
-     * Handles submit text, aria-label, and visually-hidden label for the input.
-     */
-    function _ensureSearchSubmitLabel() {
-        var label = 'Search';
-
-        // --- Submit input ---
-        var $submitInput = $('#search-container input[type="submit"]');
-        if ($submitInput.length) {
-            if (!($submitInput.val() || '').trim()) {
-                $submitInput.val(label);
-            }
-            if (!$submitInput.attr('aria-label')) {
-                $submitInput.attr('aria-label', label);
-            }
-        }
-
-        // --- Submit button ---
-        var $submitBtn = $('#search-container button[type="submit"]');
-        if ($submitBtn.length) {
-            if (!($submitBtn.text() || '').trim()) {
-                $submitBtn.text(label);
-            }
-            if (!$submitBtn.attr('aria-label')) {
-                $submitBtn.attr('aria-label', label);
-            }
-        }
-
-        // --- Ensure search text input has an accessible name ---
-        var $searchInput = $('#search-container input[type="text"]');
-        if ($searchInput.length) {
-            var inputId = $searchInput.attr('id');
-            if (!inputId) {
-                inputId = 'search-q';
-                $searchInput.attr('id', inputId);
-            }
-            // Only inject label if none is associated
-            if (!$('label[for="' + inputId + '"]').length) {
-                $('<label class="sr-only" for="' + inputId + '">' + label + '</label>')
-                    .insertBefore($searchInput);
-            }
-        }
-    }
-
-    /**
      * Force file viewers (iframe, embed, object) in #itemfiles to fill their
      * container. Omeka plugins often set inline width/height attributes that
      * prevent CSS from taking effect.
@@ -132,6 +111,8 @@ var NessiaTheme = (function ($) {
     function _expandFileViewers() {
         var $container = $('#itemfiles');
         if (!$container.length) return;
+
+        if (!$container.is('.nessia-media-document, .nessia-media-mixed')) return;
 
         $container.find('iframe, embed, object').each(function () {
             this.removeAttribute('width');
@@ -141,38 +122,37 @@ var NessiaTheme = (function ($) {
         });
     }
 
-function _setupHeaderShrink() {
+    function _setupHeaderShrink() {
         var $header = $('header[role="banner"]');
         if (!$header.length) {
             return;
         }
         var scrollThreshold = 60;
 
-        $(window).on('scroll', function () {
-            if ($(this).scrollTop() > scrollThreshold) {
-                $header.addClass('nessia-header-compact');
-            } else {
-                $header.removeClass('nessia-header-compact');
+        var ticking = false;
+
+        function update() {
+            $header.toggleClass('nessia-header-compact', window.pageYOffset > scrollThreshold);
+            ticking = false;
+        }
+
+        window.addEventListener('scroll', function () {
+            if (!ticking) {
+                ticking = true;
+                window.requestAnimationFrame(update);
             }
-        });
+        }, { passive: true });
+        update();
     }
 
-    return {
-        init: init
-    };
-
-})(jQuery);
-
     // Advanced Search panel toggle — accessible, uses HTML hidden attribute.
-    (function () {
+    function _setupAdvancedSearch() {
         var container = document.getElementById('search-container');
         if (!container) return;
 
         var panel = document.getElementById('advanced-form');
         // Accept our PHP-injected button, or fall back to Omeka's link variant.
-        var toggle = document.getElementById('advanced-toggle')
-            || container.querySelector('.advanced-toggle')
-            || container.querySelector('.advanced a');
+        var toggle = document.getElementById('advanced-toggle');
 
         if (!panel || !toggle) return;
 
@@ -225,5 +205,58 @@ function _setupHeaderShrink() {
                 closePanel();
             }
         });
-    })();
+    }
 
+    /**
+     * Open item images in Lightbox2 (if loaded). Omeka links each file
+     * thumbnail to its file page or original; we point image links at the
+     * full-size original and group them into one gallery per page.
+     */
+    function _setupLightbox() {
+        if (!window.lightbox || typeof window.lightbox.option !== 'function') return;
+
+        window.lightbox.option({
+            wrapAround: true,
+            albumLabel: i18n.image,
+            fadeDuration: _prefersReducedMotion() ? 0 : 300,
+            imageFadeDuration: _prefersReducedMotion() ? 0 : 300,
+            resizeDuration: _prefersReducedMotion() ? 0 : 400
+        });
+
+        var title = $.trim($('#content h1').first().text());
+        var imgExt = /\.(jpe?g|png|gif|webp|avif|bmp|tiff?)(\?.*)?$/i;
+
+        $('#itemfiles a, .items.show #content .item-file a').each(function () {
+            var $a = $(this);
+            var $img = $a.find('img').first();
+            if (!$img.length) return;
+
+            var href = $a.attr('href') || '';
+            if (!imgExt.test(href)) {
+                // Thumbnail links to the file page: derive the original from the thumbnail src.
+                var src = $img.attr('src') || '';
+                var original = src.replace(/\/files\/(thumbnails|square_thumbnails|fullsize)\//, '/files/fullsize/');
+                if (original === src || !imgExt.test(original)) return;
+                href = original;
+            }
+            $a.attr({
+                href: href,
+                'data-lightbox': 'item-gallery',
+                'data-title': $img.attr('alt') || title
+            });
+        });
+    }
+
+    return {
+        init: init
+    };
+
+})(jQuery);
+
+jQuery(function () {
+    if (window.Omeka) {
+        if (typeof Omeka.skipNav === 'function') Omeka.skipNav();
+        if (typeof Omeka.megaMenu === 'function') Omeka.megaMenu('#primary-nav ul.navigation');
+    }
+    NessiaTheme.init();
+});

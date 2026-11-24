@@ -22,20 +22,31 @@
 
     <!-- Stylesheets -->
     <?php
-    queue_css_file(array('normalize', 'nessia'));
+    $nessiaLightbox = (bool) nessia_option('image_lightbox');
+    queue_css_file($nessiaLightbox ? array('normalize', 'lightbox.min', 'nessia') : array('normalize', 'nessia'));
     queue_css_url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Noto+Serif:ital,wght@0,400;0,700;1,400&family=Noto+Sans+Arabic:wght@300;400;500&family=Noto+Sans+Hebrew:wght@300;400;500&family=Noto+Sans+Syriac:wght@400&display=swap');
     echo head_css();
     ?>
 
     <!-- JavaScripts -->
-    <?php queue_js_file(array('globals', 'vendor/jquery-accessibleMegaMenu', 'nessia')); ?>
+    <?php
+    $nessiaJs = array('globals', 'vendor/jquery-accessibleMegaMenu');
+    if ($nessiaLightbox) {
+        $nessiaJs[] = 'vendor/lightbox.min';
+    }
+    $nessiaJs[] = 'nessia';
+    queue_js_file($nessiaJs);
+    ?>
     <?php echo head_js(); ?>
 </head>
-<?php echo body_tag(array('id' => @$bodyid, 'class' => @$bodyclass)); ?>
+<?php
+    $nessiaBanner = nessia_page_banner(isset($title) ? $title : null, @$bodyid, @$bodyclass);
+    echo body_tag(array('id' => @$bodyid, 'class' => trim(@$bodyclass . ($nessiaBanner ? ' has-banner' : ''))));
+?>
     <a href="#content" id="skipnav"><?php echo __('Skip to Main Content'); ?></a>
     <?php fire_plugin_hook('public_body', array('view' => $this)); ?>
 
-<div id="wrap">
+<div id="wrap" data-i18n-search="<?php echo html_escape(__('Search')); ?>" data-i18n-menu="<?php echo html_escape(__('Menu')); ?>" data-i18n-image="<?php echo html_escape(__('Image %1 of %2')); ?>">
 
     <?php
         $headerBg = nessia_header_bg();
@@ -61,55 +72,11 @@
 
             <div id="search-container" role="search">
                 <?php
-                    $showAdvanced = get_theme_option('use_advanced_search');
-                    $formClass = ($showAdvanced) ? 'with-advanced' : '';
-                    $searchFormHtml = search_form(array(
-                        'show_advanced' => $showAdvanced,
-                        'form_attributes' => array('class' => $formClass)
+                    $showAdvanced = (bool) nessia_option('use_advanced_search');
+                    echo search_form(array(
+                        'show_advanced'   => $showAdvanced,
+                        'form_attributes' => array('class' => $showAdvanced ? 'with-advanced' : ''),
                     ));
-
-                    $searchLabel = __('Search');
-                    $advLabel    = __('Advanced search');
-
-                    // --- Accessible submit label ---
-                    // 1) <input type="submit">: ensure value + aria-label.
-                    $searchFormHtml = preg_replace(
-                        '/(<input\s+[^>]*type=["\']submit["\'][^>]*)(?:\s+value=["\'][^"\']*["\'])?([^>]*>)/i',
-                        '$1 value="' . html_escape($searchLabel) . '" aria-label="' . html_escape($searchLabel) . '"$2',
-                        $searchFormHtml,
-                        1
-                    );
-
-                    // 2) <button type="submit"></button>: inject text + aria-label.
-                    $searchFormHtml = preg_replace(
-                        '/(<button\s+[^>]*type=["\']submit["\'])([^>]*>)(\s*?)<\/button>/i',
-                        '$1 aria-label="' . html_escape($searchLabel) . '"$2' . html_escape($searchLabel) . '</button>',
-                        $searchFormHtml,
-                        1
-                    );
-
-                    // --- Replace "Advanced Search" link with an accessible toggle button ---
-                    // Omeka typically outputs: <div class="advanced"><a href="...">Advanced Search</a></div>
-                    // We replace the <a> with a <button> that has proper ARIA attributes.
-                    $searchFormHtml = preg_replace(
-                        '/<div\s+class=["\']advanced["\'][^>]*>\s*<a\b[^>]*>[^<]*<\/a>\s*<\/div>/i',
-                        '<button type="button" class="advanced-toggle" id="advanced-toggle"'
-                        . ' aria-controls="advanced-form" aria-expanded="false">'
-                        . html_escape($advLabel) . '</button>',
-                        $searchFormHtml,
-                        1
-                    );
-
-                    // --- Add accessibility attributes to #advanced-form ---
-                    // Set role, aria-labelledby, and hidden (default closed).
-                    $searchFormHtml = preg_replace(
-                        '/(<(?:div|fieldset)\s+[^>]*id=["\']advanced-form["\'])([^>]*>)/i',
-                        '$1 role="group" aria-labelledby="advanced-toggle" hidden$2',
-                        $searchFormHtml,
-                        1
-                    );
-
-                    echo $searchFormHtml;
                 ?>
             </div>
         </div>
@@ -118,6 +85,8 @@
     <nav id="primary-nav" role="navigation" aria-label="<?php echo __('Navigation'); ?>">
         <?php echo public_nav_main(); ?>
     </nav>
+
+    <?php echo $nessiaBanner; ?>
 
     <div id="content" role="main" tabindex="-1">
         <?php fire_plugin_hook('public_content_top', array('view' => $this)); ?>
