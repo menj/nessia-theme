@@ -2,7 +2,7 @@
 
 **A modernist, minimalist theme for the [Near Eastern and Semitic Information Archive](https://nessia.org)**
 
-Version 1.3.0 · Omeka Classic 3.x · GPL License
+Version 1.3.1 · Omeka Classic 3.2+ · GPL License
 
 ---
 
@@ -46,7 +46,7 @@ Version 1.3.0 · Omeka Classic 3.x · GPL License
 
 ## Requirements
 
-- **Omeka Classic** 3.0 or later
+- **Omeka Classic** 3.2 or later (earlier versions are not supported)
 - A modern web browser (Chrome, Firefox, Safari, Edge)
 
 ---

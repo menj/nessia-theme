@@ -7,6 +7,10 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.3.1] — 2026-11-24
+### Changed
+- Requires **Omeka Classic 3.2 or later**. `theme.ini` and the NessiaSetup plugin now declare `omeka_minimum_version` 3.2 (target 3.2.2), so Omeka refuses to activate them on older versions.
+
 ## [1.3.0] — 2026-11-24
 ### Added
 - Homepage template (`index.php`): intro text, featured item, recent items.
