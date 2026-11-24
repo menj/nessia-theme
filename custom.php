@@ -747,19 +747,33 @@ function nessia_background_setup()
     $done = true;
 
     try {
+        $setup = nessia_setup();
+
         if (nessia_option('auto_categories')) {
             $hash = md5_file(dirname(__FILE__) . '/data/categories.php');
             if (get_option('nessia_categories_hash') !== $hash) {
-                nessia_setup()->seed();
-                set_option('nessia_categories_hash', $hash);
+                // Concurrent first visits: only the request holding the lock
+                // seeds, and it re-checks the hash once it has the lock.
+                $setup->withLock(function () use ($setup, $hash) {
+                    if (get_option('nessia_categories_hash') !== $hash) {
+                        $setup->seed();
+                        set_option('nessia_categories_hash', $hash);
+                    }
+                });
             }
         }
 
         if (nessia_option('auto_identifiers')) {
             $last = (int) get_option('nessia_identifiers_checked');
             if (time() - $last > 300) {
-                set_option('nessia_identifiers_checked', (string) time());
-                nessia_setup()->slugs(false, 25);
+                // The lock is the atomic claim; the timestamp is re-read
+                // inside it so a request that waited behind another skips.
+                $setup->withLock(function () use ($setup) {
+                    if (time() - (int) get_option('nessia_identifiers_checked') > 300) {
+                        set_option('nessia_identifiers_checked', (string) time());
+                        $setup->slugs(false, 25);
+                    }
+                });
             }
         }
     } catch (Exception $e) {
@@ -811,9 +825,12 @@ function nessia_tools_handle_post()
         return array('action' => 'error', 'lines' => array(__('The form expired. Reload the page and try again.')));
     }
     $setup = nessia_setup();
+    $busy = array('action' => 'error', 'lines' => array(__('Setup is already running in another request. Try again in a moment.')));
     switch ($_POST['nessia_action']) {
         case 'seed':
-            $setup->seed();
+            if ($setup->withLock(function () use ($setup) { $setup->seed(); return true; }, 10) === false) {
+                return $busy;
+            }
             $report = json_decode((string) get_option('nessia_setup_report'), true);
             $c = isset($report['counts']) ? $report['counts'] : array();
             return array('action' => 'seed', 'lines' => array(
@@ -823,12 +840,15 @@ function nessia_tools_handle_post()
                 __('Tags created: %s', isset($c['tags']) ? (int) $c['tags'] : 0),
             ));
         case 'identifiers':
-            $result = $setup->slugs(false);
+            $result = $setup->withLock(function () use ($setup) { return $setup->slugs(false); }, 10);
+            if ($result === false) {
+                return $busy;
+            }
             return array('action' => 'identifiers', 'lines' => array(__('%s Identifier(s) written.', count($result['rows']))));
         case 'migrate':
             // New categories must exist before items move into them.
-            $setup->seed();
-            return array('action' => 'migrate', 'lines' => $setup->migrate(false));
+            $lines = $setup->withLock(function () use ($setup) { $setup->seed(); return $setup->migrate(false); }, 10);
+            return $lines === false ? $busy : array('action' => 'migrate', 'lines' => $lines);
     }
     return null;
 }

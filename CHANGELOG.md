@@ -7,6 +7,11 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.4.1] — 2026-11-24
+### Fixed
+- Concurrent first visits could both seed categories, and concurrent page loads could both write Identifiers. Setup work now runs under a MySQL named lock (`GET_LOCK`), and the hash or timestamp is re-checked once the lock is held; each record is re-checked just before its Identifier is written.
+- The tools page ran a query for every record missing an Identifier. Existing Identifiers are now loaded in one query per record type, and the preview lists the first 100 while still counting them all.
+
 ## [1.4.0] — 2026-11-24
 ### Changed
 - **The NessiaSetup plugin is now built into the theme** (`lib/NessiaSetup.php`); there is no separate plugin to install.
