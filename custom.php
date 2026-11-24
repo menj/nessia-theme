@@ -28,6 +28,10 @@ function nessia_option_defaults()
         'use_advanced_search'      => '1',
         'social_links'             => '',
         'image_lightbox'           => '1',
+        'browse_view'              => 'grid',
+        'mission_text'             => 'Preserving the sources of <strong>Semitic religion, language and heritage</strong> for scholars, students and every curious reader.',
+        'mission_button_label'     => 'Browse the archive',
+        'mission_button_url'       => '',
     );
 }
 
@@ -408,5 +412,181 @@ function nessia_explore_topics()
         $html .= '</li>';
     }
     $html .= '</ul></section>';
+    return $html;
+}
+
+/* ==========================================================================
+   Page banner
+   ========================================================================== */
+
+/**
+ * Banner shown above the content on every page except the homepage:
+ * page title plus a breadcrumb trail.
+ *
+ * @param string|null $title     Page title passed to head().
+ * @param string|null $bodyid
+ * @param string|null $bodyclass
+ * @return string HTML or empty string.
+ */
+function nessia_page_banner($title, $bodyid = null, $bodyclass = null)
+{
+    if (!$title || $bodyid === 'home') {
+        return '';
+    }
+    $classes = ' ' . (string) $bodyclass . ' ';
+    $crumbs = array(array(__('Home'), url('/')));
+
+    if (strpos($classes, ' items ') !== false && strpos($classes, ' show ') !== false) {
+        $crumbs[] = array(__('Items'), url('items/browse'));
+    } elseif (strpos($classes, ' collections ') !== false && strpos($classes, ' show ') !== false) {
+        $crumbs[] = array(__('Collections'), url('collections/browse'));
+    } elseif (strpos($classes, ' exhibits ') !== false && strpos($classes, ' browse ') === false) {
+        $crumbs[] = array(__('Exhibits'), url('exhibits'));
+    }
+
+    $html = '<div class="nessia-page-banner"><div class="nessia-page-banner-inner">'
+        . '<nav class="nessia-crumbs" aria-label="' . html_escape(__('Breadcrumb')) . '"><ol>';
+    foreach ($crumbs as $crumb) {
+        $html .= '<li><a href="' . html_escape($crumb[1]) . '">' . html_escape($crumb[0]) . '</a></li>';
+    }
+    $html .= '<li aria-current="page">' . html_escape(strip_formatting($title)) . '</li></ol></nav>'
+        . '<p class="nessia-page-title" aria-hidden="true">' . html_escape(strip_formatting($title)) . '</p>'
+        . '</div></div>';
+    return $html;
+}
+
+/* ==========================================================================
+   Browse views & filters
+   ========================================================================== */
+
+/**
+ * Current browse view: grid (default), list or table.
+ *
+ * @return string
+ */
+function nessia_browse_view()
+{
+    $view = isset($_GET['view']) ? (string) $_GET['view'] : (string) nessia_option('browse_view');
+    return in_array($view, array('grid', 'list', 'table'), true) ? $view : 'grid';
+}
+
+/**
+ * Current URL with some query parameters replaced (null removes one).
+ *
+ * @param array $changes
+ * @return string
+ */
+function nessia_url_with(array $changes)
+{
+    $params = $_GET;
+    foreach ($changes as $key => $value) {
+        if ($value === null) {
+            unset($params[$key]);
+        } else {
+            $params[$key] = $value;
+        }
+    }
+    unset($params['page']);
+    $path = strtok($_SERVER['REQUEST_URI'], '?');
+    return $path . ($params ? '?' . http_build_query($params) : '');
+}
+
+/**
+ * Grid / list / table switcher.
+ *
+ * @return string HTML
+ */
+function nessia_view_switcher()
+{
+    $current = nessia_browse_view();
+    $views = array(
+        'grid'  => array(__('Grid'), '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>'),
+        'list'  => array(__('List'), '<rect x="3" y="4" width="6" height="6"/><line x1="12" y1="6" x2="21" y2="6"/><line x1="12" y1="9" x2="18" y2="9"/><rect x="3" y="14" width="6" height="6"/><line x1="12" y1="16" x2="21" y2="16"/><line x1="12" y1="19" x2="18" y2="19"/>'),
+        'table' => array(__('Table'), '<line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>'),
+    );
+    $html = '<div class="nessia-view-switch" role="group" aria-label="' . html_escape(__('View')) . '">';
+    foreach ($views as $key => $v) {
+        $html .= '<a href="' . html_escape(nessia_url_with(array('view' => $key))) . '"'
+            . ($key === $current ? ' class="is-active" aria-current="true"' : '')
+            . ' title="' . html_escape($v[0]) . '">'
+            . '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">' . $v[1] . '</svg>'
+            . '<span class="sr-only">' . html_escape($v[0]) . '</span></a>';
+    }
+    return $html . '</div>';
+}
+
+/**
+ * Filter pills: All + each item type that has public items.
+ *
+ * @return string HTML
+ */
+function nessia_type_pills()
+{
+    $db = get_db();
+    $rows = $db->fetchAll(
+        "SELECT it.id, it.name, COUNT(i.id) AS n
+         FROM {$db->ItemType} it
+         JOIN {$db->Item} i ON i.item_type_id = it.id AND i.public = 1
+         GROUP BY it.id, it.name
+         HAVING n > 0
+         ORDER BY it.name"
+    );
+    if (count($rows) < 2) {
+        return '';
+    }
+    $active = isset($_GET['type']) ? (int) $_GET['type'] : 0;
+    $html = '<nav class="nessia-pills" aria-label="' . html_escape(__('Filter by type')) . '"><ul>';
+    $html .= '<li><a href="' . html_escape(nessia_url_with(array('type' => null))) . '"'
+        . (!$active ? ' class="is-active" aria-current="true"' : '') . '>' . __('All') . '</a></li>';
+    foreach ($rows as $row) {
+        $isActive = $active === (int) $row['id'];
+        $html .= '<li><a href="' . html_escape(nessia_url_with(array('type' => $row['id']))) . '"'
+            . ($isActive ? ' class="is-active" aria-current="true"' : '') . '>'
+            . html_escape(__($row['name'])) . ' <span class="nessia-pill-count">' . (int) $row['n'] . '</span></a></li>';
+    }
+    return $html . '</ul></nav>';
+}
+
+/* ==========================================================================
+   Mission band & footer
+   ========================================================================== */
+
+/**
+ * Statement band above the footer. Text supports <strong> for emphasis.
+ *
+ * @return string HTML
+ */
+function nessia_mission_band()
+{
+    $text = trim((string) nessia_option('mission_text'));
+    if ($text === '' || $text === '0') {
+        return '';
+    }
+    $text = strip_tags($text, '<strong><em><b><i><br>');
+    $label = trim((string) nessia_option('mission_button_label'));
+    $url = trim((string) nessia_option('mission_button_url'));
+    if ($url === '') {
+        $url = url('items/browse');
+    }
+    $html = '<section class="nessia-mission"><div class="nessia-mission-inner">'
+        . '<p class="nessia-mission-text">' . $text . '</p>';
+    if ($label !== '') {
+        $html .= '<a class="nessia-mission-btn" href="' . html_escape($url) . '">' . html_escape($label) . '</a>';
+    }
+    return $html . '</div></section>';
+}
+
+/**
+ * Footer "Explore" links from the top-level categories.
+ *
+ * @return string HTML list items
+ */
+function nessia_footer_explore()
+{
+    $categories = nessia_categories();
+    $html = '';
+    foreach ($categories['collections'] as $cat) {
+        $html .= '<li><a href="' . html_escape(nessia_category_url($cat['title'])) . '">' . html_escape(__($cat['title'])) . '</a></li>';
+    }
     return $html;
 }

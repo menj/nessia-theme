@@ -1,29 +1,85 @@
 <?php
 $pageTitle = __('Browse Items');
 echo head(array('title' => $pageTitle, 'bodyclass' => 'items browse'));
+$view = nessia_browse_view();
 ?>
 
-<h1><?php echo $pageTitle; ?> <?php echo __('(%s total)', $total_results); ?></h1>
+<h1><?php echo $pageTitle; ?> <span class="nessia-count"><?php echo __('(%s total)', $total_results); ?></span></h1>
 
 <nav class="items-nav navigation secondary-nav" aria-label="<?php echo __('Items'); ?>">
     <?php echo public_nav_items(); ?>
 </nav>
 
+<?php echo nessia_type_pills(); ?>
+
 <?php echo item_search_filters(); ?>
+
+<?php if ($total_results > 0): ?>
+<div class="nessia-browse-bar">
+    <div id="sort-links">
+        <span class="sort-label"><?php echo __('Sort by: '); ?></span>
+        <?php echo browse_sort_links(array(
+            __('Title')      => 'Dublin Core,Title',
+            __('Creator')    => 'Dublin Core,Creator',
+            __('Date Added') => 'added',
+        )); ?>
+    </div>
+    <?php echo nessia_view_switcher(); ?>
+</div>
+<?php endif; ?>
 
 <?php echo pagination_links(); ?>
 
-<?php if ($total_results > 0): ?>
-    <?php
-    $sortLinks[__('Title')]      = 'Dublin Core,Title';
-    $sortLinks[__('Creator')]    = 'Dublin Core,Creator';
-    $sortLinks[__('Date Added')] = 'added';
-    ?>
-    <div id="sort-links">
-        <span class="sort-label"><?php echo __('Sort by: '); ?></span>
-        <?php echo browse_sort_links($sortLinks); ?>
-    </div>
-<?php endif; ?>
+<?php if ($view === 'table'): ?>
+
+<div class="nessia-table-wrap">
+    <table class="nessia-table">
+        <thead>
+            <tr>
+                <th scope="col"><?php echo __('Title'); ?></th>
+                <th scope="col"><?php echo __('Creator'); ?></th>
+                <th scope="col"><?php echo __('Type'); ?></th>
+                <th scope="col" class="nessia-col-date"><?php echo __('Date Added'); ?></th>
+            </tr>
+        </thead>
+        <tbody>
+        <?php foreach (loop('items') as $item): ?>
+            <tr>
+                <td><?php echo link_to_item(metadata('item', array('Dublin Core', 'Title'))); ?></td>
+                <td><?php echo metadata('item', array('Dublin Core', 'Creator')); ?></td>
+                <td><?php echo metadata('item', 'Item Type Name'); ?></td>
+                <td class="nessia-col-date"><?php echo nessia_display_date_added(); ?></td>
+            </tr>
+        <?php endforeach; ?>
+        </tbody>
+    </table>
+</div>
+
+<?php elseif ($view === 'grid'): ?>
+
+<div class="nessia-shelf">
+    <?php foreach (loop('items') as $item): ?>
+    <?php $hasThumb = metadata('item', 'has thumbnail'); ?>
+    <article class="nessia-shelf-item hentry">
+        <?php
+        if ($hasThumb) {
+            $cover = item_image('thumbnail', array('alt' => '', 'loading' => 'lazy'));
+        } else {
+            $typeName = metadata('item', 'Item Type Name');
+            $cover = '<span class="nessia-cover-placeholder"><span>' . html_escape($typeName ? $typeName : __('Item')) . '</span></span>';
+        }
+        echo link_to_item($cover, array('class' => 'nessia-cover', 'tabindex' => '-1', 'aria-hidden' => 'true'));
+        ?>
+        <h2><?php echo link_to_item(metadata('item', array('Dublin Core', 'Title'))); ?></h2>
+        <?php if ($creator = metadata('item', array('Dublin Core', 'Creator'))): ?>
+        <p class="item-creator"><?php echo $creator; ?></p>
+        <?php endif; ?>
+        <?php fire_plugin_hook('public_items_browse_each', array('view' => $this, 'item' => $item)); ?>
+    </article>
+    <?php endforeach; ?>
+</div>
+
+<?php else: ?>
 
 <?php if ($featuredHtml = random_featured_items(1)): ?>
 <div id="featured-item">
@@ -66,6 +122,8 @@ echo head(array('title' => $pageTitle, 'bodyclass' => 'items browse'));
     </div>
     <?php endforeach; ?>
 </div>
+
+<?php endif; ?>
 
 <?php echo pagination_links(); ?>
 

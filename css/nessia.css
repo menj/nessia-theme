@@ -2790,3 +2790,689 @@ header[role="banner"][style*="background-image"] > * {
     color: #fff;
     text-decoration: none;
 }
+
+
+/* ==========================================================================
+   Page banner (title + breadcrumb band under the navigation)
+   ========================================================================== */
+
+.nessia-page-banner {
+    position: relative;
+    background-color: var(--nessia-primary);
+    background-image:
+        radial-gradient(120% 140% at 100% 0%, var(--nessia-primary-light) 0%, transparent 60%),
+        linear-gradient(180deg, var(--nessia-primary) 0%, var(--nessia-primary-light) 100%);
+    color: var(--nessia-text-on-dark);
+    overflow: hidden;
+}
+
+/* Gold hairline along the bottom edge */
+.nessia-page-banner::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--nessia-accent) 0%, var(--nessia-accent-light) 50%, transparent 100%);
+}
+
+.nessia-page-banner-inner {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 2.75em 1.5em 2.5em;
+}
+
+.nessia-crumbs ol {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    padding: 0;
+    margin: 0 0 0.6em;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.nessia-crumbs li {
+    margin: 0;
+    color: var(--nessia-text-on-dark);
+    opacity: 0.6;
+}
+
+.nessia-crumbs li + li::before {
+    content: '/';
+    margin: 0 0.6em;
+    color: var(--nessia-accent);
+}
+
+.nessia-crumbs a {
+    color: var(--nessia-accent-light);
+    text-decoration: none;
+}
+
+.nessia-crumbs a:hover {
+    text-decoration: underline;
+}
+
+.nessia-crumbs li:has(a) {
+    opacity: 1;
+}
+
+.nessia-page-title {
+    font-family: 'Noto Serif', serif;
+    font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+    font-weight: 700;
+    line-height: 1.2;
+    color: #fff;
+    margin: 0;
+    max-width: 30em;
+}
+
+/* The banner shows the title; keep the page's own h1 for screen readers. */
+.has-banner #content > h1:first-of-type,
+.has-banner #primary > h1:first-of-type {
+    position: absolute !important;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+}
+
+/* Simple Pages' own breadcrumb is replaced by the banner's. */
+.has-banner.simple-page #primary > p:first-child,
+.has-banner .simple-page-breadcrumbs {
+    display: none;
+}
+
+.has-banner #content {
+    padding-top: 2.25em;
+}
+
+.has-banner.simple-page #primary h1 + p {
+    margin-top: 0;
+}
+
+
+/* ==========================================================================
+   Browse bar, filter pills, view switcher
+   ========================================================================== */
+
+.nessia-count {
+    font-size: 0.6em;
+    font-weight: 400;
+    color: var(--nessia-text-muted);
+}
+
+.nessia-pills ul {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5em;
+    padding: 0;
+    margin: 0.5em 0 1.5em;
+}
+
+.nessia-pills li {
+    margin: 0;
+}
+
+.nessia-pills a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45em;
+    padding: 0.45em 1.1em;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--nessia-primary);
+    background: var(--nessia-surface);
+    border: 1px solid var(--nessia-border);
+    border-radius: 999px;
+    text-decoration: none;
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.nessia-pills a:hover {
+    border-color: var(--nessia-accent);
+    text-decoration: none;
+}
+
+.nessia-pills a.is-active {
+    background: var(--nessia-primary);
+    border-color: var(--nessia-primary);
+    color: #fff;
+}
+
+.nessia-pill-count {
+    font-weight: 400;
+    opacity: 0.6;
+}
+
+.nessia-browse-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1em;
+    flex-wrap: wrap;
+}
+
+.nessia-browse-bar #sort-links {
+    padding: 0.75em 0;
+}
+
+.nessia-view-switch {
+    display: inline-flex;
+    border: 1px solid var(--nessia-border);
+    border-radius: 6px;
+    overflow: hidden;
+    background: var(--nessia-surface);
+}
+
+.nessia-view-switch a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 32px;
+    color: var(--nessia-text-muted);
+    text-decoration: none;
+}
+
+.nessia-view-switch a + a {
+    border-left: 1px solid var(--nessia-border-light);
+}
+
+.nessia-view-switch a:hover {
+    color: var(--nessia-primary);
+    background: var(--nessia-bg);
+}
+
+.nessia-view-switch a.is-active {
+    color: #fff;
+    background: var(--nessia-primary);
+}
+
+
+/* ==========================================================================
+   Shelf (grid) view
+   ========================================================================== */
+
+.nessia-shelf {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 2.25em 1.75em;
+    margin: 1.5em 0 2em;
+}
+
+.nessia-shelf-item {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+}
+
+.nessia-cover {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 3 / 4;
+    margin-bottom: 0.9em;
+    background: var(--nessia-surface);
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow:
+        0 1px 2px rgba(0,0,0,0.08),
+        0 8px 20px rgba(0,0,0,0.08);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.nessia-shelf-item:hover .nessia-cover {
+    transform: translateY(-4px);
+    box-shadow:
+        0 2px 4px rgba(0,0,0,0.08),
+        0 16px 32px rgba(0,0,0,0.12);
+}
+
+.nessia-cover img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+}
+
+.nessia-cover-placeholder {
+    display: flex;
+    align-items: flex-end;
+    width: 100%;
+    height: 100%;
+    padding: 1.25em;
+    background:
+        linear-gradient(160deg, var(--nessia-primary-light) 0%, var(--nessia-primary) 100%);
+    border-left: 6px solid var(--nessia-accent);
+}
+
+.nessia-cover-placeholder span {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--nessia-accent-light);
+}
+
+.nessia-shelf-item h2 {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    line-height: 1.4;
+    margin: 0 0 0.25em;
+}
+
+.nessia-shelf-item h2 a {
+    color: var(--nessia-text);
+    text-decoration: none;
+}
+
+.nessia-shelf-item h2 a:hover {
+    color: var(--nessia-link-hover);
+}
+
+.nessia-shelf-item .item-creator {
+    font-size: 0.8125rem;
+    color: var(--nessia-accent-dark);
+    margin: 0;
+}
+
+@media screen and (max-width: 480px) {
+    .nessia-shelf {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1.5em 1em;
+    }
+}
+
+
+/* ==========================================================================
+   Table view
+   ========================================================================== */
+
+.nessia-table-wrap {
+    background: var(--nessia-surface);
+    border: 1px solid var(--nessia-border-light);
+    border-radius: 8px;
+    padding: 0.5em 1.5em;
+    margin: 1.5em 0 2em;
+    overflow-x: auto;
+}
+
+.nessia-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9375rem;
+}
+
+.nessia-table th {
+    text-align: left;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--nessia-text-muted);
+    padding: 1em 0.75em 0.75em 0;
+    border-bottom: 2px solid var(--nessia-border);
+}
+
+.nessia-table td {
+    padding: 0.85em 0.75em 0.85em 0;
+    border-bottom: 1px solid var(--nessia-border-light);
+    vertical-align: top;
+}
+
+.nessia-table tr:last-child td {
+    border-bottom: 0;
+}
+
+.nessia-table td:first-child a {
+    font-weight: 600;
+    color: var(--nessia-primary);
+}
+
+.nessia-table td:first-child a:hover {
+    color: var(--nessia-link-hover);
+}
+
+.nessia-table .nessia-col-date {
+    white-space: nowrap;
+    color: var(--nessia-text-muted);
+    text-align: right;
+    padding-right: 0;
+}
+
+@media screen and (max-width: 600px) {
+    .nessia-table th:nth-child(2),
+    .nessia-table td:nth-child(2),
+    .nessia-table th:nth-child(3),
+    .nessia-table td:nth-child(3) {
+        display: none;
+    }
+}
+
+
+/* ==========================================================================
+   Contact page — split card (Simple Contact Form)
+   ========================================================================== */
+
+#simple-contact {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    max-width: 64em;
+    background: var(--nessia-surface);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+}
+
+#simple-contact #form-instructions {
+    position: relative;
+    background: var(--nessia-primary);
+    color: var(--nessia-text-on-dark);
+    padding: 2.75em 2.5em;
+    font-size: 1rem;
+    line-height: 1.7;
+}
+
+#simple-contact #form-instructions::before {
+    content: '';
+    display: block;
+    width: 2.5em;
+    height: 3px;
+    background: var(--nessia-accent);
+    margin-bottom: 1.5em;
+}
+
+#simple-contact #form-instructions p {
+    color: var(--nessia-text-on-dark);
+}
+
+#simple-contact #form-instructions em,
+#simple-contact #form-instructions i {
+    color: var(--nessia-accent-light);
+}
+
+#simple-contact #form-instructions a {
+    color: var(--nessia-accent-light);
+}
+
+/* The form loses its own card inside the split layout */
+#simple-contact #contact-form,
+#simple-contact form {
+    max-width: none;
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 2.5em;
+}
+
+#simple-contact > *:not(#form-instructions):not(form) {
+    grid-column: 1 / -1;
+}
+
+@media screen and (max-width: 767px) {
+    #simple-contact {
+        grid-template-columns: 1fr;
+    }
+
+    #simple-contact #form-instructions,
+    #simple-contact #contact-form,
+    #simple-contact form {
+        padding: 1.75em 1.5em;
+    }
+}
+
+
+/* ==========================================================================
+   Mission band (above footer)
+   ========================================================================== */
+
+.nessia-mission {
+    position: relative;
+    margin-top: 3em;
+    background-color: var(--nessia-primary-light);
+    background-image:
+        linear-gradient(100deg, var(--nessia-primary) 0%, var(--nessia-primary-light) 55%, var(--nessia-primary) 100%);
+    color: var(--nessia-text-on-dark);
+    overflow: hidden;
+}
+
+/* Watermark of the NESSIA emblem on the left */
+.nessia-mission::before {
+    content: '';
+    position: absolute;
+    left: -60px;
+    top: 50%;
+    width: 340px;
+    height: 340px;
+    transform: translateY(-50%);
+    background: url('../images/nessia/logo.svg') center / contain no-repeat;
+    opacity: 0.07;
+    pointer-events: none;
+}
+
+.nessia-mission-inner {
+    position: relative;
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 4em 1.5em;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+}
+
+.nessia-mission-inner > * {
+    grid-column: 2;
+}
+
+.nessia-mission-text {
+    font-family: 'Inter', sans-serif;
+    font-size: clamp(1.25rem, 2.4vw, 1.75rem);
+    font-weight: 300;
+    line-height: 1.5;
+    margin: 0 0 1.25em;
+    color: var(--nessia-text-on-dark);
+}
+
+.nessia-mission-text strong,
+.nessia-mission-text b {
+    font-weight: 600;
+    color: #fff;
+}
+
+.nessia-mission-btn {
+    justify-self: start;
+    display: inline-block;
+    padding: 0.8em 1.75em;
+    background: var(--nessia-accent);
+    color: var(--nessia-primary);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.nessia-mission-btn:hover {
+    background: var(--nessia-accent-light);
+    color: var(--nessia-primary);
+    text-decoration: none;
+    transform: translateY(-1px);
+}
+
+/* The footer sits flush under the band */
+.nessia-mission + footer[role="contentinfo"] {
+    margin-top: 0;
+}
+
+@media screen and (max-width: 767px) {
+    .nessia-mission-inner {
+        grid-template-columns: 1fr;
+        padding: 3em 1.5em;
+    }
+
+    .nessia-mission-inner > * {
+        grid-column: 1;
+    }
+}
+
+
+/* ==========================================================================
+   Footer — four columns
+   ========================================================================== */
+
+.nessia-footer-inner {
+    padding: 3.5em 1.5em 0;
+}
+
+.nessia-footer-cols {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) repeat(3, minmax(0, 1fr));
+    gap: 2.5em;
+    padding-bottom: 2.75em;
+}
+
+.nessia-footer-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75em;
+    margin-bottom: 1.1em;
+    color: #fff;
+    text-decoration: none;
+}
+
+.nessia-footer-logo img {
+    width: 48px;
+    height: auto;
+    flex: none;
+}
+
+.nessia-footer-logo span {
+    font-family: 'Noto Serif', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.nessia-footer-logo:hover {
+    color: var(--nessia-accent-light);
+    text-decoration: none;
+}
+
+.nessia-footer-brand p {
+    font-size: 0.875rem;
+    line-height: 1.65;
+    color: var(--nessia-text-on-dark);
+    opacity: 0.75;
+    margin: 0;
+    padding-top: 1.1em;
+    border-top: 1px solid rgba(255,255,255,0.15);
+}
+
+.nessia-footer-col h2 {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--nessia-accent-light);
+    margin: 0 0 1.25em;
+}
+
+.nessia-footer-col ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: block;
+}
+
+.nessia-footer-col li {
+    margin: 0 0 0.65em;
+}
+
+.nessia-footer-col a {
+    font-size: 0.875rem;
+    color: var(--nessia-text-on-dark);
+    opacity: 0.8;
+    text-decoration: none;
+    transition: opacity 0.2s ease, color 0.2s ease;
+}
+
+.nessia-footer-col a:hover {
+    opacity: 1;
+    color: var(--nessia-accent-light);
+    text-decoration: none;
+}
+
+/* Old single-row footer nav rules are superseded */
+#bottom-nav.nessia-footer-col {
+    padding: 0;
+    margin: 0;
+    border: 0;
+}
+
+#bottom-nav.nessia-footer-col a {
+    display: inline;
+    padding: 0;
+    font-weight: 400;
+}
+
+.nessia-footer-connect .nessia-social {
+    margin-bottom: 1em;
+}
+
+.nessia-footer-connect .nessia-social a {
+    opacity: 0.85;
+}
+
+.nessia-footer-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5em 1.5em;
+    padding: 1.25em 0;
+    border-top: 1px solid rgba(255,255,255,0.12);
+    font-size: 0.6875rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.nessia-footer-bottom p {
+    margin: 0;
+    opacity: 0.6;
+}
+
+.nessia-footer-bottom a {
+    color: var(--nessia-accent-light);
+}
+
+@media screen and (max-width: 900px) {
+    .nessia-footer-cols {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .nessia-footer-brand {
+        grid-column: 1 / -1;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .nessia-footer-cols {
+        grid-template-columns: 1fr;
+        gap: 2em;
+    }
+}

@@ -39,7 +39,10 @@
     ?>
     <?php echo head_js(); ?>
 </head>
-<?php echo body_tag(array('id' => @$bodyid, 'class' => @$bodyclass)); ?>
+<?php
+    $nessiaBanner = nessia_page_banner(isset($title) ? $title : null, @$bodyid, @$bodyclass);
+    echo body_tag(array('id' => @$bodyid, 'class' => trim(@$bodyclass . ($nessiaBanner ? ' has-banner' : ''))));
+?>
     <a href="#content" id="skipnav"><?php echo __('Skip to Main Content'); ?></a>
     <?php fire_plugin_hook('public_body', array('view' => $this)); ?>
 
@@ -82,6 +85,8 @@
     <nav id="primary-nav" role="navigation" aria-label="<?php echo __('Navigation'); ?>">
         <?php echo public_nav_main(); ?>
     </nav>
+
+    <?php echo $nessiaBanner; ?>
 
     <div id="content" role="main" tabindex="-1">
         <?php fire_plugin_hook('public_content_top', array('view' => $this)); ?>
