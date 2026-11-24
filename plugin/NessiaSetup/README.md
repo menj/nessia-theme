@@ -23,3 +23,13 @@ The NESSIA theme reads the same file for its homepage **Explore by topic** secti
 4. Reload the Configure page and read the **Preview**. Nothing has changed yet.
 5. Tick **Apply reorganisation** → Save.
 6. Settings → Search → **Index Records** so search reflects the new categories.
+
+## Readable addresses (Clean Url)
+Turns `/items/show/24` into `/comparative-religion/al-tawhid-its-implications-for-thought-and-life`.
+
+1. Install the **Clean Url** plugin for Omeka Classic (Admin → Plugins).
+2. **Back up the database.**
+3. NESSIA Setup → Configure → **Readable addresses**: check the preview, tick **Write Identifiers** and **Name new records automatically**, Save.
+4. Clean Url → Configure: use **Dublin Core: Identifier**, no prefix, and choose the item form you prefer (for example *collection / item*). Old `/items/show/…` addresses keep working.
+
+The NESSIA theme prints a `<link rel="canonical">` with the record's address, so search engines index the clean form once Clean Url is active.

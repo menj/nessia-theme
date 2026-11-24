@@ -10,7 +10,7 @@
  */
 class NessiaSetupPlugin extends Omeka_Plugin_AbstractPlugin
 {
-    protected $_hooks = array('install', 'config_form', 'config');
+    protected $_hooks = array('install', 'config_form', 'config', 'after_save_item', 'after_save_collection');
 
     public function hookInstall()
     {
@@ -24,6 +24,8 @@ class NessiaSetupPlugin extends Omeka_Plugin_AbstractPlugin
         $migrationReport = get_option('nessia_setup_migration_report');
         $inventory = $this->_inventory();
         $preview = $this->_migrate(true);
+        $slugPreview = $this->_slugs(true);
+        $slugReport = get_option('nessia_setup_slug_report');
         include dirname(__FILE__) . '/views/admin/config-form.php';
     }
 
@@ -32,6 +34,14 @@ class NessiaSetupPlugin extends Omeka_Plugin_AbstractPlugin
         if (!empty($args['post']['nessia_setup_run'])) {
             $this->_seed();
         }
+        if (!empty($args['post']['nessia_setup_slugs'])) {
+            $written = $this->_slugs(false);
+            set_option('nessia_setup_slug_report', json_encode(array(
+                'time'  => date('c'),
+                'count' => count($written['rows']),
+            )));
+        }
+        set_option('nessia_setup_auto_slug', empty($args['post']['nessia_setup_auto_slug']) ? '0' : '1');
         if (!empty($args['post']['nessia_setup_migrate'])) {
             // New categories must exist before items are moved into them.
             $this->_seed();
@@ -408,5 +418,176 @@ class NessiaSetupPlugin extends Omeka_Plugin_AbstractPlugin
             $db->query("DELETE FROM `$table` WHERE parent_collection_id = ?", array($oldId));
         }
         $db->query("DELETE FROM `$table` WHERE collection_id = ?", array($oldId));
+    }
+
+    // ------------------------------------------------------------------
+    // Readable URL names (Dublin Core Identifier) for the Clean Url plugin
+    // ------------------------------------------------------------------
+
+    public function hookAfterSaveItem($args)
+    {
+        $this->_autoSlug($args['record'], 'Item');
+    }
+
+    public function hookAfterSaveCollection($args)
+    {
+        $this->_autoSlug($args['record'], 'Collection');
+    }
+
+    /**
+     * Give a newly saved record an identifier if it has none (when enabled).
+     */
+    protected function _autoSlug($record, $type)
+    {
+        if (get_option('nessia_setup_auto_slug') !== '1' || !$record || !$record->id) {
+            return;
+        }
+        $ids = $this->_identifierElement();
+        if (!$ids || $this->_hasIdentifier($record->id, $type, $ids->id)) {
+            return;
+        }
+        $title = $this->_title($record->id, $type);
+        if ($title === '') {
+            return;
+        }
+        $this->_writeIdentifier($record->id, $type, $ids->id, $this->_uniqueSlug($title, $type, $ids->id));
+    }
+
+    /**
+     * Preview or write identifiers for every collection and item without one.
+     *
+     * @param bool $dryRun
+     * @return array rows (type, id, title, slug) and skipped (records that already have an identifier)
+     */
+    protected function _slugs($dryRun)
+    {
+        $db = get_db();
+        $ids = $this->_identifierElement();
+        $titleEl = $db->getTable('Element')->findByElementSetNameAndElementName('Dublin Core', 'Title');
+        $out = array('rows' => array(), 'skipped' => 0);
+        if (!$ids || !$titleEl) {
+            return $out;
+        }
+        $reserved = array();
+        foreach (array('Collection', 'Item') as $type) {
+            $table = $type === 'Item' ? $db->Item : $db->Collection;
+            $rows = $db->fetchAll(
+                "SELECT r.id, t.text AS title,
+                        (SELECT COUNT(*) FROM {$db->ElementText} x
+                          WHERE x.record_id = r.id AND x.record_type = ? AND x.element_id = ?) AS has_id
+                 FROM `$table` r
+                 LEFT JOIN {$db->ElementText} t
+                   ON t.record_id = r.id AND t.record_type = ? AND t.element_id = ?
+                 GROUP BY r.id, t.text
+                 ORDER BY r.id",
+                array($type, $ids->id, $type, $titleEl->id)
+            );
+            $seen = array();
+            foreach ($rows as $row) {
+                if (isset($seen[$row['id']])) {
+                    continue; // several titles: use the first
+                }
+                $seen[$row['id']] = true;
+                if ((int) $row['has_id'] > 0) {
+                    $out['skipped']++;
+                    continue;
+                }
+                $title = trim(strip_tags((string) $row['title']));
+                if ($title === '') {
+                    continue;
+                }
+                $slug = $this->_uniqueSlug($title, $type, $ids->id, $reserved);
+                $reserved[$type][$slug] = true;
+                $out['rows'][] = array('type' => $type, 'id' => (int) $row['id'], 'title' => $title, 'slug' => $slug);
+                if (!$dryRun) {
+                    $this->_writeIdentifier($row['id'], $type, $ids->id, $slug);
+                }
+            }
+        }
+        return $out;
+    }
+
+    protected function _identifierElement()
+    {
+        return get_db()->getTable('Element')->findByElementSetNameAndElementName('Dublin Core', 'Identifier');
+    }
+
+    protected function _hasIdentifier($id, $type, $elementId)
+    {
+        $db = get_db();
+        return (bool) $db->fetchOne(
+            "SELECT id FROM {$db->ElementText} WHERE record_id = ? AND record_type = ? AND element_id = ? LIMIT 1",
+            array($id, $type, $elementId)
+        );
+    }
+
+    protected function _title($id, $type)
+    {
+        $db = get_db();
+        $el = $db->getTable('Element')->findByElementSetNameAndElementName('Dublin Core', 'Title');
+        return $el ? trim(strip_tags((string) $db->fetchOne(
+            "SELECT text FROM {$db->ElementText} WHERE record_id = ? AND record_type = ? AND element_id = ? ORDER BY id LIMIT 1",
+            array($id, $type, $el->id)
+        ))) : '';
+    }
+
+    protected function _writeIdentifier($id, $type, $elementId, $slug)
+    {
+        $et = new ElementText;
+        $et->record_id = (int) $id;
+        $et->record_type = $type;
+        $et->element_id = (int) $elementId;
+        $et->text = $slug;
+        $et->html = 0;
+        $et->save();
+    }
+
+    /**
+     * Lower-case, ASCII, hyphenated, at most 80 characters, unique among
+     * identifiers of the same record type.
+     */
+    protected function _uniqueSlug($title, $type, $elementId, array $reserved = array())
+    {
+        $base = $this->_slugify($title);
+        if ($base === '') {
+            $base = strtolower($type);
+        }
+        $db = get_db();
+        $slug = $base;
+        $n = 2;
+        while (!empty($reserved[$type][$slug]) || $db->fetchOne(
+            "SELECT id FROM {$db->ElementText} WHERE record_type = ? AND element_id = ? AND text = ? LIMIT 1",
+            array($type, $elementId, $slug)
+        )) {
+            $slug = $base . '-' . $n++;
+        }
+        return $slug;
+    }
+
+    public static function slugify($text)
+    {
+        $text = html_entity_decode((string) $text, ENT_QUOTES, 'UTF-8');
+        // Common transliteration marks (ʿ ʾ ā ī ū ḥ ṣ …) collapse to plain letters.
+        if (function_exists('transliterator_transliterate')) {
+            $ascii = transliterator_transliterate('Any-Latin; Latin-ASCII; Lower()', $text);
+        } else {
+            $ascii = strtolower((string) @iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $text));
+        }
+        $ascii = str_replace(array("'", '`', '"'), '', (string) $ascii);
+        $ascii = preg_replace('/[^a-z0-9]+/', '-', $ascii);
+        $ascii = trim($ascii, '-');
+        if (strlen($ascii) > 80) {
+            $ascii = substr($ascii, 0, 80);
+            $cut = strrpos($ascii, '-');
+            if ($cut !== false && $cut > 40) {
+                $ascii = substr($ascii, 0, $cut);
+            }
+        }
+        return $ascii;
+    }
+
+    protected function _slugify($text)
+    {
+        return self::slugify($text);
     }
 }

@@ -9,11 +9,9 @@
     <?php if ($copyright = option('copyright')): ?>
     <meta name="copyright" content="<?php echo html_escape($copyright); ?>" />
     <?php endif; ?>
-    <?php if ($description = option('description')): ?>
-    <meta name="description" content="<?php echo html_escape($description); ?>" />
-    <?php endif; ?>
+    <?php echo nessia_seo_meta(isset($title) ? $title : null); ?>
 
-    <title><?php echo strip_formatting(option('site_title')); echo isset($title) ? ' | ' . strip_formatting($title) : ''; ?></title>
+    <title><?php echo isset($title) ? strip_formatting($title) . ' | ' : ''; echo strip_formatting(option('site_title')); ?></title>
 
     <?php echo auto_discovery_link_tags(); ?>
 
@@ -70,8 +68,6 @@
                 </div>
             </div>
 
-            <?php echo nessia_donate_button('header'); ?>
-
             <div id="search-container" role="search">
                 <?php
                     $showAdvanced = (bool) nessia_option('use_advanced_search');
@@ -85,7 +81,17 @@
     </header>
 
     <nav id="primary-nav" role="navigation" aria-label="<?php echo __('Navigation'); ?>">
-        <?php echo public_nav_main(); ?>
+        <?php
+        // Donate sits at the right end of the main menu (hidden until a link is set).
+        $nessiaMenu = (string) public_nav_main();
+        if ($nessiaDonate = nessia_donate_button('nav')) {
+            $pos = strrpos($nessiaMenu, '</ul>');
+            if ($pos !== false) {
+                $nessiaMenu = substr_replace($nessiaMenu, '<li class="nessia-nav-donate">' . $nessiaDonate . '</li></ul>', $pos, 5);
+            }
+        }
+        echo $nessiaMenu;
+        ?>
     </nav>
 
     <?php echo $nessiaBanner; ?>

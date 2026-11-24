@@ -3552,23 +3552,28 @@ header[role="banner"][style*="background-image"] > * {
     transform: translateY(-1px);
 }
 
-/* Header: outline pill after the search box */
-.nessia-brand {
-    margin-right: auto;
+/* Navigation bar: last item, pushed to the right */
+#primary-nav > ul > li.nessia-nav-donate {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
 }
 
-.nessia-donate--header {
-    order: 3;
-    padding: 0.5em 1.1em 0.5em 0.85em;
-    color: var(--nessia-accent-light);
-    border: 1.5px solid var(--nessia-accent);
+#primary-nav > ul > li.nessia-nav-donate > a.nessia-donate--nav {
+    display: inline-flex;
+    font-weight: 700;
+    padding: 0.35em 1.05em 0.35em 0.85em;
+    color: #fff;
+    background: var(--nessia-donate);
+    border: 1.5px solid var(--nessia-donate);
+    letter-spacing: 0.08em;
 }
 
-.nessia-donate--header:hover,
-.nessia-donate--header:focus-visible {
-    background: var(--nessia-accent);
-    border-color: var(--nessia-accent);
-    color: var(--nessia-primary);
+#primary-nav > ul > li.nessia-nav-donate > a.nessia-donate--nav:hover,
+#primary-nav > ul > li.nessia-nav-donate > a.nessia-donate--nav:focus-visible {
+    background: var(--nessia-donate-dark);
+    border-color: var(--nessia-donate-dark);
+    color: #fff;
 }
 
 /* Mission band: second button beside "Browse the archive" */
@@ -3583,38 +3588,30 @@ header[role="banner"][style*="background-image"] > * {
 .nessia-donate--band {
     padding: 0.7em 1.5em 0.7em 1.15em;
     color: #fff;
-    border: 1.5px solid rgba(255,255,255,0.55);
+    background: var(--nessia-donate);
+    border: 1.5px solid var(--nessia-donate);
     border-radius: 6px;
     font-size: 0.8125rem;
 }
 
 .nessia-donate--band:hover,
 .nessia-donate--band:focus-visible {
-    background: #fff;
-    border-color: #fff;
-    color: var(--nessia-primary);
+    background: var(--nessia-donate-dark);
+    border-color: var(--nessia-donate-dark);
+    color: #fff;
 }
 
-/* Phones: icon-only in the header, sitting top-right */
+/* Oxblood, shared by every colour scheme */
+:root {
+    --nessia-donate:      #6b1a1f;
+    --nessia-donate-dark: #4e1015;
+}
+
+/* Phones: in the opened menu, Donate is a full-width row */
 @media screen and (max-width: 767px) {
-    .nessia-donate--header {
-        position: absolute;
-        top: 1em;
-        right: 1em;
-        padding: 0.5em;
-    }
-
-    .nessia-donate--header .nessia-donate-label {
-        position: absolute;
-        width: 1px;
-        height: 1px;
-        overflow: hidden;
-        clip: rect(0 0 0 0);
-        white-space: nowrap;
-    }
-
-    header[role="banner"] {
-        position: relative;
+    #primary-nav > ul > li.nessia-nav-donate {
+        margin-left: 0;
+        padding: 0.75em 0;
     }
 }
 
@@ -3626,11 +3623,6 @@ header[role="banner"][style*="background-image"] > * {
 }
 
 @media screen and (max-width: 767px) {
-    /* Room for the icon-only Donate button in the top-right corner */
-    .nessia-titles {
-        padding-right: 2.75em;
-    }
-
     /* Search: box on its own row, buttons below */
     #search-container form {
         display: flex;
@@ -3646,5 +3638,177 @@ header[role="banner"][style*="background-image"] > * {
 
     #search-container form > button {
         flex: 1 1 0;
+    }
+}
+
+
+/* ==========================================================================
+   Navigation as tabs
+   Desktop and tablet (768px and up): folder tabs on a tinted bar; the
+   current section's tab is the page colour with a gold top edge, so it
+   reads as opening onto the page below. Phones: the collapsible menu shows
+   each link as a full-width button.
+   ========================================================================== */
+
+@media screen and (min-width: 768px) {
+    #primary-nav {
+        background: var(--nessia-bg-alt);
+        border-bottom: 1px solid var(--nessia-border);
+    }
+
+    #primary-nav > ul {
+        align-items: flex-end;
+        gap: 0.25em;
+        padding-top: 0.6em;
+        flex-wrap: nowrap;
+    }
+
+    #primary-nav > ul > li:not(.nessia-nav-donate) > a {
+        position: relative;
+        top: 1px; /* sit on the bar's bottom border */
+        padding: 0.7em 1.15em 0.75em;
+        border: 1px solid transparent;
+        border-bottom: 0;
+        border-radius: 8px 8px 0 0;
+        color: var(--nessia-text-muted);
+        font-weight: 600;
+        white-space: nowrap;
+        transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    }
+
+    /* Rollover: the tab lifts into a pale card with a thin gold top edge */
+    #primary-nav > ul > li:not(.nessia-nav-donate) > a:hover,
+    #primary-nav > ul > li:not(.nessia-nav-donate) > a:focus-visible {
+        background: var(--nessia-surface);
+        border-color: var(--nessia-border);
+        color: var(--nessia-primary);
+        box-shadow: inset 0 2px 0 var(--nessia-accent-light);
+        text-decoration: none;
+    }
+
+    /* Current section */
+    #primary-nav > ul > li.active > a,
+    #primary-nav > ul > li.current > a,
+    #primary-nav .current > a,
+    .exhibits #primary-nav li.nav-exhibits > a,
+    .collections #primary-nav li.nav-collections > a,
+    .items #primary-nav li.nav-items > a,
+    .about #primary-nav li.nav-about > a {
+        background: var(--nessia-bg);
+        border-color: var(--nessia-border);
+        color: var(--nessia-primary);
+        box-shadow: inset 0 3px 0 var(--nessia-accent);
+    }
+
+    /* The page banner directly below carries on from the active tab */
+    .has-banner #primary-nav > ul > li.active > a,
+    .has-banner #primary-nav > ul > li.current > a {
+        background: var(--nessia-primary);
+        border-color: var(--nessia-primary);
+        color: #fff;
+    }
+
+    .has-banner #primary-nav {
+        border-bottom-color: var(--nessia-primary);
+    }
+
+    /* Donate: centred on the tab row (the li stretches to the tabs' height) */
+    #primary-nav > ul > li.nessia-nav-donate {
+        align-self: stretch;
+        display: flex;
+        align-items: center;
+        padding: 0;
+        position: relative;
+        top: 1px; /* same offset as the tabs */
+    }
+
+    /* Tabs: text and any icon centred vertically inside each tab */
+    #primary-nav > ul > li:not(.nessia-nav-donate) {
+        display: flex;
+        align-items: flex-end;
+    }
+
+    #primary-nav > ul > li:not(.nessia-nav-donate) > a {
+        display: flex;
+        align-items: center;
+        line-height: 1.2;
+    }
+}
+
+/* Tablet: tighter tabs so six links and Donate fit on one row */
+@media screen and (min-width: 768px) and (max-width: 1100px) {
+    #primary-nav > ul {
+        padding-left: 1em;
+        padding-right: 1em;
+        gap: 0.125em;
+    }
+
+    #primary-nav > ul > li:not(.nessia-nav-donate) > a {
+        padding: 0.65em 0.7em 0.7em;
+        font-size: 0.71875rem;
+        letter-spacing: 0.03em;
+    }
+
+    #primary-nav > ul > li.nessia-nav-donate > a.nessia-donate--nav {
+        padding: 0.3em 0.75em 0.3em 0.6em;
+        font-size: 0.6875rem;
+    }
+}
+
+/* Narrow tablets: icon-only Donate */
+@media screen and (min-width: 768px) and (max-width: 900px) {
+    #primary-nav > ul > li.nessia-nav-donate .nessia-donate-label {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+    }
+
+    #primary-nav > ul > li.nessia-nav-donate > a.nessia-donate--nav {
+        padding: 0.4em;
+    }
+}
+
+/* Phones: the opened menu is a stack of buttons */
+@media screen and (max-width: 767px) {
+    #primary-nav > ul {
+        gap: 0.4em;
+        padding: 0.75em 1em 1em;
+    }
+
+    #primary-nav > ul > li:not(.nessia-nav-donate) > a {
+        padding: 0.8em 1em;
+        border: 1px solid var(--nessia-border-light);
+        border-radius: 8px;
+        background: var(--nessia-surface);
+        font-weight: 600;
+    }
+
+    #primary-nav > ul > li.active > a,
+    #primary-nav > ul > li.current > a {
+        background: var(--nessia-primary);
+        border-color: var(--nessia-primary);
+        color: #fff;
+        box-shadow: inset 3px 0 0 var(--nessia-accent);
+    }
+
+    #primary-nav > ul > li.nessia-nav-donate {
+        padding: 0.25em 0 0;
+    }
+
+    #primary-nav > ul > li.nessia-nav-donate > a.nessia-donate--nav {
+        width: 100%;
+        justify-content: center;
+        padding: 0.8em 1em;
+        border-radius: 8px;
+    }
+}
+
+@media screen and (max-width: 767px) {
+    /* Room for the menu button in the top-right corner of the header */
+    .nessia-titles {
+        padding-right: 2.75em;
     }
 }
