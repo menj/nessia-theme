@@ -216,7 +216,17 @@ nav ul li,
 #sort-links ul li,
 .exhibit-section-nav li,
 .exhibit-page-nav li,
-.items-nav li {
+.items-nav li,
+.nessia-topic-grid li,
+.nessia-social li,
+.nessia-pills li,
+.nessia-crumbs li,
+.nessia-footer-col li,
+.nessia-file-downloads li,
+.exhibits-list li,
+#collection-tree li,
+.simple-page #primary > ul:only-of-type li,
+#content > ul:first-child li {
     list-style-type: none;
     list-style: none;
 }
@@ -3449,6 +3459,10 @@ header[role="banner"][style*="background-image"] > * {
     border: 0;
 }
 
+#bottom-nav.nessia-footer-col ul {
+    display: block;
+}
+
 #bottom-nav.nessia-footer-col a {
     display: inline;
     padding: 0;
@@ -3500,4 +3514,9 @@ header[role="banner"][style*="background-image"] > * {
         grid-template-columns: 1fr;
         gap: 2em;
     }
+}
+
+/* Profile icons stay in a row inside the footer column */
+.nessia-footer-col ul.nessia-social {
+    display: flex;
 }
