@@ -2,7 +2,7 @@
 
 **A modernist, minimalist theme for the [Near Eastern and Semitic Information Archive](https://nessia.org)**
 
-Version 1.3.1 · Omeka Classic 3.2+ · GPL License
+Version 1.4.0 · Omeka Classic 3.2+ · GPL License
 
 ---
 
@@ -229,3 +229,28 @@ Copyright © 2025 NESSIA (202503137729).
 
 ## 1.1.3
 - Fix: ensure the header search submit button always renders a visible label.
+
+---
+
+## Archive setup (built in)
+
+The theme does what the old NessiaSetup plugin did. Settings: **Appearance → Themes → Configure → Archive Setup**.
+
+- **Create Default Categories** (on by default): creates the collections, the Simple Vocab subject list and the tags in `data/categories.php` if they are missing. Sub-collections are nested when the Collection Tree plugin is active. Nothing is deleted.
+- **Readable Addresses** (on by default): gives every collection and item without a Dublin Core Identifier one made from its title, for the **Clean Url** plugin.
+
+### Tools page
+While logged in as a super user, open `https://nessia.org/?nessia-tools`:
+- create missing categories now;
+- preview and write all readable Identifiers now;
+- see every collection, tag and subject with item counts, preview a reorganisation and apply it.
+
+### Reorganise
+1. Back up the database.
+2. Fill in `migrate` in `data/categories.php` (old name => new name, or `null` to remove).
+3. Check the preview on the tools page, then press **Apply reorganisation**.
+4. Settings → Search → **Index Records**.
+
+### Clean Url
+Install the Clean Url plugin and set it to use **Dublin Core: Identifier**. Old `/items/show/…` addresses keep working; the theme's canonical link points search engines at the clean address.
+

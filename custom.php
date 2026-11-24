@@ -6,7 +6,7 @@
  * https://nessia.org
  *
  * @package NESSIA
- * @version 1.3.1
+ * @version 1.4.0
  */
 
 /**
@@ -34,6 +34,8 @@ function nessia_option_defaults()
         'mission_button_url'       => '',
         'donate_url'               => '',
         'donate_label'             => 'Donate',
+        'auto_categories'          => '1',
+        'auto_identifiers'         => '1',
     );
 }
 
@@ -324,8 +326,7 @@ function nessia_social_links()
 }
 
 /**
- * Category structure: from the NessiaSetup plugin if installed,
- * otherwise the theme's bundled data/categories.php.
+ * Category structure from the theme's data/categories.php.
  *
  * @return array
  */
@@ -335,10 +336,7 @@ function nessia_categories()
     if ($categories !== null) {
         return $categories;
     }
-    $paths = array(
-        PLUGIN_DIR . '/NessiaSetup/categories.php',
-        dirname(__FILE__) . '/data/categories.php',
-    );
+    $paths = array(dirname(__FILE__) . '/data/categories.php');
     foreach ($paths as $path) {
         if (is_readable($path)) {
             $loaded = include $path;
@@ -690,6 +688,9 @@ function nessia_seo_meta($title = null)
     $pageTitle = $title ? strip_formatting($title) . ' | ' . $siteTitle : $siteTitle;
 
     $html = '';
+    if (isset($_GET['nessia-tools'])) {
+        return '<meta name="robots" content="noindex, nofollow">' . "\n";
+    }
     if ($canonical) {
         $html .= '<link rel="canonical" href="' . html_escape($canonical) . '">' . "\n";
         $html .= '    <meta property="og:url" content="' . html_escape($canonical) . '">' . "\n";
@@ -708,4 +709,126 @@ function nessia_seo_meta($title = null)
         $html .= '    <meta name="twitter:card" content="summary">' . "\n";
     }
     return $html;
+}
+
+
+/* ==========================================================================
+   Built-in setup (lib/NessiaSetup.php)
+   ========================================================================== */
+
+/**
+ * @return NessiaSetup
+ */
+function nessia_setup()
+{
+    static $setup = null;
+    if ($setup === null) {
+        require_once dirname(__FILE__) . '/lib/NessiaSetup.php';
+        $setup = new NessiaSetup;
+    }
+    return $setup;
+}
+
+/**
+ * Background work on public page loads. Each step is guarded so it costs
+ * one option read when there is nothing to do, and errors never reach the
+ * visitor.
+ *
+ * 1. Categories: created once per categories.php version.
+ * 2. Identifiers: records without a Dublin Core Identifier get one from
+ *    their title, 25 at a time, checked at most every 5 minutes.
+ */
+function nessia_background_setup()
+{
+    static $done = false;
+    if ($done || is_admin_theme()) {
+        return;
+    }
+    $done = true;
+
+    try {
+        if (nessia_option('auto_categories')) {
+            $hash = md5_file(dirname(__FILE__) . '/data/categories.php');
+            if (get_option('nessia_categories_hash') !== $hash) {
+                nessia_setup()->seed();
+                set_option('nessia_categories_hash', $hash);
+            }
+        }
+
+        if (nessia_option('auto_identifiers')) {
+            $last = (int) get_option('nessia_identifiers_checked');
+            if (time() - $last > 300) {
+                set_option('nessia_identifiers_checked', (string) time());
+                nessia_setup()->slugs(false, 25);
+            }
+        }
+    } catch (Exception $e) {
+        _log('NESSIA theme setup: ' . $e->getMessage(), Zend_Log::WARN);
+    }
+}
+
+/* ==========================================================================
+   Private tools page: https://your-site/?nessia-tools (super users only)
+   ========================================================================== */
+
+/**
+ * @return bool True when the tools page was asked for by a super user.
+ */
+function nessia_tools_requested()
+{
+    if (!isset($_GET['nessia-tools'])) {
+        return false;
+    }
+    $user = current_user();
+    return $user && $user->role === 'super';
+}
+
+/**
+ * Per-session token that every tools form must send back.
+ *
+ * @return string
+ */
+function nessia_tools_token()
+{
+    $session = new Zend_Session_Namespace('nessia_tools');
+    if (empty($session->token)) {
+        $session->token = bin2hex(random_bytes(16));
+    }
+    return $session->token;
+}
+
+/**
+ * Run a posted tools action.
+ *
+ * @return array|null array('action' => ..., 'lines' => array()) or null
+ */
+function nessia_tools_handle_post()
+{
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST' || empty($_POST['nessia_action'])) {
+        return null;
+    }
+    if (!isset($_POST['nessia_token']) || !hash_equals(nessia_tools_token(), (string) $_POST['nessia_token'])) {
+        return array('action' => 'error', 'lines' => array(__('The form expired. Reload the page and try again.')));
+    }
+    $setup = nessia_setup();
+    switch ($_POST['nessia_action']) {
+        case 'seed':
+            $setup->seed();
+            $report = json_decode((string) get_option('nessia_setup_report'), true);
+            $c = isset($report['counts']) ? $report['counts'] : array();
+            return array('action' => 'seed', 'lines' => array(
+                __('Collections created: %s', isset($c['collections']) ? (int) $c['collections'] : 0),
+                __('Collections nested: %s', isset($c['nested']) ? (int) $c['nested'] : 0),
+                __('Subject terms added: %s', isset($c['subjects']) ? (int) $c['subjects'] : 0),
+                __('Tags created: %s', isset($c['tags']) ? (int) $c['tags'] : 0),
+            ));
+        case 'identifiers':
+            $result = $setup->slugs(false);
+            return array('action' => 'identifiers', 'lines' => array(__('%s Identifier(s) written.', count($result['rows']))));
+        case 'migrate':
+            // New categories must exist before items move into them.
+            $setup->seed();
+            return array('action' => 'migrate', 'lines' => $setup->migrate(false));
+    }
+    return null;
 }

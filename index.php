@@ -1,3 +1,9 @@
+<?php
+if (nessia_tools_requested()) {
+    include dirname(__FILE__) . '/common/nessia-tools.php';
+    return;
+}
+?>
 <?php echo head(array('bodyid' => 'home', 'bodyclass' => 'two-col')); ?>
 
 <?php if ($homepageText = nessia_option('homepage_text')): ?>

@@ -3812,3 +3812,94 @@ header[role="banner"][style*="background-image"] > * {
         padding-right: 2.75em;
     }
 }
+
+
+/* ==========================================================================
+   Private tools page (?nessia-tools)
+   ========================================================================== */
+
+.nessia-tools-lead {
+    color: var(--nessia-text-muted);
+}
+
+.nessia-tools-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5em;
+    margin: 1.5em 0;
+}
+
+.nessia-tools-tabs a {
+    padding: 0.45em 1.1em;
+    border: 1px solid var(--nessia-border);
+    border-radius: 999px;
+    background: var(--nessia-surface);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.nessia-tool {
+    background: var(--nessia-surface);
+    border: 1px solid var(--nessia-border-light);
+    border-top: 3px solid var(--nessia-accent);
+    border-radius: 8px;
+    padding: 1.5em 1.75em;
+    margin-bottom: 1.5em;
+}
+
+.nessia-tool h2 {
+    margin-top: 0;
+}
+
+.nessia-tool-list {
+    padding-left: 1.2em;
+    font-size: 0.9375rem;
+}
+
+.nessia-tool-list span {
+    color: var(--nessia-text-muted);
+}
+
+.nessia-tool-cols {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(14em, 1fr));
+    gap: 1em 2em;
+}
+
+.nessia-tool-ok {
+    color: #2e6b3a;
+    font-weight: 600;
+}
+
+.nessia-tool-warn {
+    color: var(--nessia-donate);
+    font-weight: 600;
+}
+
+.nessia-tool button {
+    border-radius: 6px;
+}
+
+.nessia-tool .nessia-tool-danger {
+    background: var(--nessia-donate);
+    border-color: var(--nessia-donate);
+    color: #fff;
+}
+
+.nessia-tools-result {
+    border-left: 4px solid #2e6b3a;
+    background: #eef6ef;
+    padding: 0.75em 1.25em;
+    border-radius: 0 6px 6px 0;
+    margin-bottom: 1.5em;
+}
+
+.nessia-tools-result.is-error {
+    border-left-color: var(--nessia-donate);
+    background: #f8ecec;
+}
+
+.nessia-tools-result ul {
+    margin: 0;
+}

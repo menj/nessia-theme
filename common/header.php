@@ -1,3 +1,4 @@
+<?php nessia_background_setup(); ?>
 <!DOCTYPE html>
 <html lang="<?php echo get_html_lang(); ?>" class="<?php echo nessia_colour_scheme(); ?>">
 <head>

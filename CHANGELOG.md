@@ -7,6 +7,16 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.4.0] — 2026-11-24
+### Changed
+- **The NessiaSetup plugin is now built into the theme** (`lib/NessiaSetup.php`); there is no separate plugin to install.
+  - Categories from `data/categories.php` are created on the first page view after activation, and again whenever that file changes. Setting: *Create Default Categories*.
+  - Collections and items without a Dublin Core Identifier get a readable one from their title, 25 at a time, at most every 5 minutes. Setting: *Readable Addresses*.
+  - Preview, reorganisation and "run now" buttons are on a private tools page: the homepage with `?nessia-tools`, visible to super users only, protected by a per-session token and marked `noindex`.
+
+### Removed
+- `plugin/NessiaSetup/`. If it was installed, uninstall it after updating the theme (its data stays).
+
 ## [1.3.1] — 2026-11-24
 ### Changed
 - Requires **Omeka Classic 3.2 or later**. `theme.ini` and the NessiaSetup plugin now declare `omeka_minimum_version` 3.2 (target 3.2.2), so Omeka refuses to activate them on older versions.

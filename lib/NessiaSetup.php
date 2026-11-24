@@ -1,66 +1,25 @@
 <?php
 /**
- * NESSIA Setup — seeds collections, subject vocabulary and tags.
+ * NESSIA Theme — built-in setup tools (formerly the NessiaSetup plugin).
  *
- * Runs on install, and again whenever "Save Changes" is pressed on the
- * plugin's Configure page. Every step is idempotent: nothing that already
- * exists is changed or duplicated.
+ * Creates the category structure from data/categories.php, gives records
+ * readable Dublin Core Identifiers for the Clean Url plugin, and reorganises
+ * collections, tags and subjects. Every write is idempotent.
  *
- * @package NessiaSetup
+ * Runs from the public theme only: custom.php calls it once after activation
+ * (seed), in small batches on page loads (identifiers), and from the private
+ * tools page (?nessia-tools, super users only).
+ *
+ * @package NESSIA
  */
-class NessiaSetupPlugin extends Omeka_Plugin_AbstractPlugin
+class NessiaSetup
 {
-    protected $_hooks = array('install', 'config_form', 'config', 'after_save_item', 'after_save_collection');
-
-    public function hookInstall()
-    {
-        $this->_seed();
-    }
-
-    public function hookConfigForm()
-    {
-        $categories = $this->_categories();
-        $report = get_option('nessia_setup_report');
-        $migrationReport = get_option('nessia_setup_migration_report');
-        $inventory = $this->_inventory();
-        $preview = $this->_migrate(true);
-        $slugPreview = $this->_slugs(true);
-        $slugReport = get_option('nessia_setup_slug_report');
-        include dirname(__FILE__) . '/views/admin/config-form.php';
-    }
-
-    public function hookConfig($args)
-    {
-        if (!empty($args['post']['nessia_setup_run'])) {
-            $this->_seed();
-        }
-        if (!empty($args['post']['nessia_setup_slugs'])) {
-            $written = $this->_slugs(false);
-            set_option('nessia_setup_slug_report', json_encode(array(
-                'time'  => date('c'),
-                'count' => count($written['rows']),
-            )));
-        }
-        set_option('nessia_setup_auto_slug', empty($args['post']['nessia_setup_auto_slug']) ? '0' : '1');
-        if (!empty($args['post']['nessia_setup_migrate'])) {
-            // New categories must exist before items are moved into them.
-            $this->_seed();
-            $result = $this->_migrate(false);
-            set_option('nessia_setup_migration_report', json_encode(array(
-                'time'  => date('c'),
-                'lines' => $result,
-            )));
-        }
-    }
-
-    // ------------------------------------------------------------------
-
     protected function _categories()
     {
-        return include dirname(__FILE__) . '/categories.php';
+        return include dirname(dirname(__FILE__)) . '/data/categories.php';
     }
 
-    protected function _seed()
+    public function seed()
     {
         $categories = $this->_categories();
         $report = array('collections' => 0, 'nested' => 0, 'subjects' => 0, 'tags' => 0);
@@ -220,7 +179,7 @@ class NessiaSetupPlugin extends Omeka_Plugin_AbstractPlugin
     /**
      * Current collections, tags and subject values with item counts.
      */
-    protected function _inventory()
+    public function inventory()
     {
         $db = get_db();
         $out = array('collections' => array(), 'tags' => array(), 'subjects' => array());
@@ -264,7 +223,7 @@ class NessiaSetupPlugin extends Omeka_Plugin_AbstractPlugin
      * @param bool $dryRun True to only describe what would happen.
      * @return array Human-readable lines.
      */
-    protected function _migrate($dryRun)
+    public function migrate($dryRun)
     {
         $categories = $this->_categories();
         $map = isset($categories['migrate']) ? $categories['migrate'] : array();
@@ -424,42 +383,13 @@ class NessiaSetupPlugin extends Omeka_Plugin_AbstractPlugin
     // Readable URL names (Dublin Core Identifier) for the Clean Url plugin
     // ------------------------------------------------------------------
 
-    public function hookAfterSaveItem($args)
-    {
-        $this->_autoSlug($args['record'], 'Item');
-    }
-
-    public function hookAfterSaveCollection($args)
-    {
-        $this->_autoSlug($args['record'], 'Collection');
-    }
-
-    /**
-     * Give a newly saved record an identifier if it has none (when enabled).
-     */
-    protected function _autoSlug($record, $type)
-    {
-        if (get_option('nessia_setup_auto_slug') !== '1' || !$record || !$record->id) {
-            return;
-        }
-        $ids = $this->_identifierElement();
-        if (!$ids || $this->_hasIdentifier($record->id, $type, $ids->id)) {
-            return;
-        }
-        $title = $this->_title($record->id, $type);
-        if ($title === '') {
-            return;
-        }
-        $this->_writeIdentifier($record->id, $type, $ids->id, $this->_uniqueSlug($title, $type, $ids->id));
-    }
-
     /**
      * Preview or write identifiers for every collection and item without one.
      *
      * @param bool $dryRun
      * @return array rows (type, id, title, slug) and skipped (records that already have an identifier)
      */
-    protected function _slugs($dryRun)
+    public function slugs($dryRun, $limit = 0)
     {
         $db = get_db();
         $ids = $this->_identifierElement();
@@ -501,6 +431,9 @@ class NessiaSetupPlugin extends Omeka_Plugin_AbstractPlugin
                 $out['rows'][] = array('type' => $type, 'id' => (int) $row['id'], 'title' => $title, 'slug' => $slug);
                 if (!$dryRun) {
                     $this->_writeIdentifier($row['id'], $type, $ids->id, $slug);
+                }
+                if ($limit && count($out['rows']) >= $limit) {
+                    return $out;
                 }
             }
         }

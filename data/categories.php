@@ -1,8 +1,7 @@
 <?php
 /**
  * NESSIA default category structure.
- * Theme fallback copy. If the NessiaSetup plugin is installed, its own
- * categories.php is used instead, so edit that one.
+ * Edit this file to change what the plugin creates.
  */
 return array(
     // Collections. 'children' need the Collection Tree plugin to be nested;
@@ -83,5 +82,32 @@ return array(
         'arabic',
         'manuscript',
         'audio',
+    ),
+
+    // ------------------------------------------------------------------
+    // Reorganisation: map OLD names (left) to NEW names (right).
+    // Fill these in from the "Current categories" list on the plugin's
+    // Configure page, check the preview, then tick "Apply reorganisation".
+    //
+    //   collections: items in the old collection move to the new one.
+    //   tags:        tags are merged (items keep one copy of the new tag).
+    //   subjects:    Dublin Core Subject values are rewritten on items.
+    //
+    // Map an old name to null to remove it without a replacement
+    // (items lose that tag/subject; items in a removed collection become
+    // "no collection").
+    // ------------------------------------------------------------------
+    'migrate' => array(
+        'collections' => array(
+            // 'Old Collection Title' => 'Comparative Religion',
+        ),
+        'tags' => array(
+            // 'old tag' => 'new tag',
+        ),
+        'subjects' => array(
+            // 'Old Subject' => 'New Subject',
+        ),
+        // Delete old collections and tags once they are empty.
+        'delete_old' => true,
     ),
 );
