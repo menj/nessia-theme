@@ -6,7 +6,7 @@
  * https://nessia.org
  *
  * @package NESSIA
- * @version 1.4.0
+ * @version 1.5.0
  */
 
 /**
@@ -21,7 +21,7 @@ function nessia_option_defaults()
         'colour_scheme'            => 'gold',
         'site_tagline'             => 'Exploring Semitic Religion, Language and Heritage',
         'show_multilingual_names'  => '1',
-        'homepage_recent_items'    => '5',
+        'homepage_recent_items'    => '8',
         'homepage_text'            => '',
         'footer_text'              => '',
         'display_footer_copyright' => '1',
@@ -355,7 +355,15 @@ function nessia_categories()
  * @param string $title
  * @return string
  */
-function nessia_category_url($title)
+function nessia_category_collection_id($title)
+{
+    nessia_category_url($title); // fills the lookup
+    $map = nessia_category_url(null, true);
+    $key = strtolower(trim((string) $title));
+    return isset($map[$key]) ? $map[$key] : null;
+}
+
+function nessia_category_url($title, $returnMap = false)
 {
     static $byTitle = null;
     if ($byTitle === null) {
@@ -374,9 +382,13 @@ function nessia_category_url($title)
             }
         }
     }
+    if ($returnMap) {
+        return $byTitle;
+    }
     $key = strtolower(trim($title));
     if (isset($byTitle[$key])) {
-        return url('collections/show/' . $byTitle[$key]);
+        $c = get_record_by_id('Collection', $byTitle[$key]);
+        return $c ? record_url($c, 'show') : url('collections/show/' . $byTitle[$key]);
     }
     return url('items/browse', array('search' => $title));
 }
@@ -396,7 +408,12 @@ function nessia_explore_topics()
         . '<h2 id="explore-topics-title">' . __('Explore by topic') . '</h2>'
         . '<ul class="nessia-topic-grid">';
     foreach ($categories['collections'] as $cat) {
-        $html .= '<li><a class="nessia-topic-title" href="' . html_escape(nessia_category_url($cat['title'])) . '">'
+        $url = nessia_category_url($cat['title']);
+        $cid = nessia_category_collection_id($cat['title']);
+        $cover = $cid ? nessia_collection_cover($cid) : null;
+        $html .= '<li class="' . ($cover ? 'has-image' : 'no-image') . '">'
+            . '<a class="nessia-topic-img" href="' . html_escape($url) . '" tabindex="-1" aria-hidden="true">' . nessia_picture($cover, __($cat['title'])) . '</a>'
+            . '<div class="nessia-topic-body"><a class="nessia-topic-title" href="' . html_escape($url) . '">'
             . html_escape(__($cat['title'])) . '</a>';
         if (!empty($cat['description'])) {
             $html .= '<p>' . html_escape(__($cat['description'])) . '</p>';
@@ -409,7 +426,7 @@ function nessia_explore_topics()
             }
             $html .= '</ul>';
         }
-        $html .= '</li>';
+        $html .= '</div></li>';
     }
     $html .= '</ul></section>';
     return $html;
@@ -713,6 +730,13 @@ function nessia_seo_meta($title = null)
 
 
 /* ==========================================================================
+   Landing pages, overview and shortcodes (lib/landing.php)
+   ========================================================================== */
+
+require_once dirname(__FILE__) . '/lib/landing.php';
+nessia_register_shortcodes();
+
+/* ==========================================================================
    Built-in setup (lib/NessiaSetup.php)
    ========================================================================== */
 
@@ -750,7 +774,8 @@ function nessia_background_setup()
         $setup = nessia_setup();
 
         if (nessia_option('auto_categories')) {
-            $hash = md5_file(dirname(__FILE__) . '/data/categories.php');
+            // The suffix re-runs setup when the theme adds new setup steps (pages-1: landing pages).
+            $hash = md5(md5_file(dirname(__FILE__) . '/data/categories.php') . '|pages-1');
             if (get_option('nessia_categories_hash') !== $hash) {
                 // Concurrent first visits: only the request holding the lock
                 // seeds, and it re-checks the hash once it has the lock.
@@ -838,6 +863,7 @@ function nessia_tools_handle_post()
                 __('Collections nested: %s', isset($c['nested']) ? (int) $c['nested'] : 0),
                 __('Subject terms added: %s', isset($c['subjects']) ? (int) $c['subjects'] : 0),
                 __('Tags created: %s', isset($c['tags']) ? (int) $c['tags'] : 0),
+                __('Landing pages created: %s', isset($c['pages']) ? (int) $c['pages'] : 0),
             ));
         case 'identifiers':
             $result = $setup->withLock(function () use ($setup) { return $setup->slugs(false); }, 10);
@@ -851,4 +877,20 @@ function nessia_tools_handle_post()
             return $lines === false ? $busy : array('action' => 'migrate', 'lines' => $lines);
     }
     return null;
+}
+
+
+/**
+ * Address of the archive overview: the Simple Page "overview" when the
+ * theme created it, otherwise the homepage with ?overview.
+ */
+function nessia_overview_url()
+{
+    if (plugin_is_active('SimplePages')) {
+        $page = get_db()->getTable('SimplePagesPage')->findBySql('slug = ? AND is_published = 1', array('overview'), true);
+        if ($page) {
+            return url($page->slug);
+        }
+    }
+    return url('/') . '?overview';
 }

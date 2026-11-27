@@ -2,7 +2,7 @@
 
 **A modernist, minimalist theme for the [Near Eastern and Semitic Information Archive](https://nessia.org)**
 
-Version 1.4.1 · Omeka Classic 3.2+ · GPL License
+Version 1.5.0 · Omeka Classic 3.2+ · GPL License
 
 ---
 
@@ -253,4 +253,37 @@ While logged in as a super user, open `https://nessia.org/?nessia-tools`:
 
 ### Clean Url
 Install the Clean Url plugin and set it to use **Dublin Core: Identifier**. Old `/items/show/…` addresses keep working; the theme's canonical link points search engines at the clean address.
+
+---
+
+## Landing pages, overview and shortcodes
+
+Everything below works as soon as the theme is active.
+
+### Pictures everywhere
+Every card and banner shows a picture, chosen in this order:
+1. the record's own image file;
+2. the newest image in the collection or its sub-collections;
+3. a generated cover in the colour scheme, so no card is ever blank.
+
+### Pages the theme provides
+- **Homepage:** a hero with a featured picture, the archive in figures, topic tiles with pictures, featured items as large photo cards, and the newest items.
+- **Collection landing pages** (`collections/show.php`): a hero with the collection's picture and figures, sub-collections as picture cards, highlights, the newest items, what it holds by type, and related topics.
+- **Archive overview:** figures, every collection as a picture card, bars by type and by century (from Dublin Core *Date*), languages (from Dublin Core *Language*), and recent additions. Address: `/overview` when Simple Pages is active, otherwise `/?overview`.
+- **Start Here:** a landing page built from the shortcodes below (`/start-here`, Simple Pages only). Edit it freely; the theme never overwrites a page that exists.
+
+### Shortcodes (Simple Pages and exhibits)
+| Shortcode | Shows |
+|---|---|
+| `[nessia_hero kicker="…" title="…" text="…" button="…" link="…" image="URL"]` | banner with a picture (a featured image when `image` is left out) |
+| `[nessia_stats]` | the archive in figures |
+| `[nessia_collections title="…" parent="Comparative Religion"]` | collection picture cards (top level, or one collection's sub-collections) |
+| `[nessia_topics]` | the Explore-by-topic tiles |
+| `[nessia_featured limit="3"]` | featured items as photo cards |
+| `[nessia_items title="…" collection="…" type="Text" tag="…" featured="1" limit="8" more="/items/browse" more_label="…"]` | a shelf of items |
+| `[nessia_gallery title="…" collection="…" tag="…" limit="12"]` | a picture grid that opens in the lightbox |
+| `[nessia_quote text="…" source="…"]` | a pull quote |
+| `[nessia_overview]` | the whole overview page |
+
+A Simple Page made of shortcodes drops its white page card and uses the full width.
 
