@@ -2,7 +2,7 @@
 
 **A modernist, minimalist theme for the [Near Eastern and Semitic Information Archive](https://nessia.org)**
 
-Version 1.5.0 · Omeka Classic 3.2+ · GPL License
+Version 1.6.0 · Omeka Classic 3.2+ · GPL License
 
 ---
 
@@ -286,4 +286,24 @@ Every card and banner shows a picture, chosen in this order:
 | `[nessia_overview]` | the whole overview page |
 
 A Simple Page made of shortcodes drops its white page card and uses the full width.
+
+---
+
+## Structured data (schema.org)
+
+Every page carries one JSON-LD `@graph` in `<head>` (`lib/schema.php`):
+
+| Node | schema.org type |
+|---|---|
+| `#archive` | `ArchiveOrganization`: name, alternate names in Arabic, Hebrew and Syriac, logo, `sameAs` from Profile Links, `DonateAction` when a Donate Link is set |
+| `#website` | `WebSite` with a `SearchAction` (sitelinks search box) |
+| `#webpage` | `ItemPage`, `CollectionPage`, `SearchResultsPage`, `AboutPage`, `ContactPage` or `WebPage` |
+| `#breadcrumb` | `BreadcrumbList`, the same trail as the page banner |
+| `#record` on items | the Omeka item type mapped to `ScholarlyArticle`, `DigitalDocument`, `Manuscript`, `Book`, `Photograph`, `Map`, `AudioObject`, `VideoObject`, `Dataset` and others, always with `ArchiveComponent` and `holdingArchive` |
+| `#record` on collections | `Collection` + `ArchiveComponent`, with `collectionSize`, `hasPart` and `isPartOf` |
+| `#list` on browse pages | `ItemList` of the records shown |
+
+Dublin Core maps to schema.org as: Title `name`, Description `description`, Creator `author`/`creator`, Contributor `contributor`, Publisher `publisher`, Date `dateCreated`, Subject `about`/`keywords` (with tags), Language `inLanguage`, Rights `license` (a URL) or `copyrightNotice`, Identifier `identifier`, Relation `isRelatedTo`, Source `isBasedOn`, Coverage `spatialCoverage`/`temporalCoverage`. Files become `associatedMedia` (`ImageObject`, `AudioObject`, `VideoObject`, `MediaObject`), and the first image becomes `image`.
+
+Every property is checked against the schema.org vocabulary (release 29.3). The one exception is Google's `query-input` annotation on the SearchAction, which Google requires.
 

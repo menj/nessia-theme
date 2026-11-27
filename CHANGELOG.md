@@ -7,6 +7,11 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.6.0] — 2026-11-27
+### Added
+- **schema.org structured data** (`lib/schema.php`): one JSON-LD `@graph` per page with `ArchiveOrganization`, `WebSite` + `SearchAction`, the page type (`ItemPage`, `CollectionPage`, `SearchResultsPage`, `AboutPage`, `ContactPage`), `BreadcrumbList`, the item or collection record (`ArchiveComponent` plus a type mapped from the Omeka item type), and an `ItemList` on browse pages. Dublin Core fields, tags, files and the collection hierarchy are mapped to schema.org properties.
+- Checked against the schema.org 29.3 vocabulary for 20 item types × 3 file kinds × 4 page types: every type and property is valid.
+
 ## [1.5.0] — 2026-11-27
 ### Added
 - **Landing pages with pictures** (`lib/landing.php`). Every card and banner shows a picture: the record's own image, else the newest image in its collection or sub-collections, else a generated cover.

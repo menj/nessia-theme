@@ -11,6 +11,7 @@
     <meta name="copyright" content="<?php echo html_escape($copyright); ?>" />
     <?php endif; ?>
     <?php echo nessia_seo_meta(isset($title) ? $title : null); ?>
+    <?php echo nessia_schema_script(isset($title) ? $title : null); ?>
 
     <title><?php echo isset($title) ? strip_formatting($title) . ' | ' : ''; echo strip_formatting(option('site_title')); ?></title>
 
