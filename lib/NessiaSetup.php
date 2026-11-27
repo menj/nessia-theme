@@ -68,10 +68,64 @@ class NessiaSetup
             }
         }
 
+        $report['pages'] = $this->_ensurePages();
+
         set_option('nessia_setup_report', json_encode(array(
             'time'   => date('c'),
             'counts' => $report,
         )));
+    }
+
+    /**
+     * Landing pages built from theme shortcodes (Simple Pages plugin only).
+     * A page whose slug already exists is left exactly as it is.
+     *
+     * @return int Pages created.
+     */
+    protected function _ensurePages()
+    {
+        if (!plugin_is_active('SimplePages') || !class_exists('SimplePagesPage')) {
+            return 0;
+        }
+        $pages = array(
+            'overview' => array(
+                'title' => 'Archive Overview',
+                'text'  => "[nessia_overview]",
+            ),
+            'start-here' => array(
+                'title' => 'Start Here',
+                'text'  => implode("\n\n", array(
+                    '[nessia_hero kicker="Start here" title="A guide to the archive" text="Primary sources, scholarship and recordings on Semitic religion, language and heritage, arranged by topic." button="Browse every item" link="/items/browse"]',
+                    '[nessia_stats]',
+                    '[nessia_collections title="Choose a topic"]',
+                    '[nessia_featured limit="3"]',
+                    '[nessia_gallery title="From the collections" limit="12"]',
+                    '[nessia_items title="Recently added" limit="8" more="/items/browse" more_label="Browse all items"]',
+                )),
+            ),
+        );
+        $table = get_db()->getTable('SimplePagesPage');
+        $user = current_user();
+        $owner = $user ? (int) $user->id : (int) get_db()->fetchOne("SELECT id FROM " . get_db()->User . " WHERE role = 'super' ORDER BY id LIMIT 1");
+        $created = 0;
+        foreach ($pages as $slug => $def) {
+            if ($table->findBySql('slug = ?', array($slug), true)) {
+                continue;
+            }
+            $page = new SimplePagesPage;
+            $page->title = $def['title'];
+            $page->slug = $slug;
+            $page->text = $def['text'];
+            $page->is_published = 1;
+            $page->use_tiny_mce = 0;
+            $page->parent_id = 0;
+            $page->order = 0;
+            $page->created_by_user_id = $owner;
+            $page->modified_by_user_id = $owner;
+            $page->save();
+            $created++;
+        }
+        return $created;
     }
 
     /**

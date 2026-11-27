@@ -7,6 +7,15 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.5.0] — 2026-11-27
+### Added
+- **Landing pages with pictures** (`lib/landing.php`). Every card and banner shows a picture: the record's own image, else the newest image in its collection or sub-collections, else a generated cover.
+- **Homepage**: hero with a featured picture, figures, topic tiles with pictures, featured photo cards, and a shelf of new items.
+- **Collection landing pages** (`collections/show.php`): hero, figures, sub-collections, highlights, newest items, types, related topics.
+- **Archive overview**: figures, collection cards, bars by type and by century, languages, recent additions (`/overview` or `/?overview`).
+- **Shortcodes** for Simple Pages and exhibits: `nessia_hero`, `nessia_stats`, `nessia_collections`, `nessia_topics`, `nessia_featured`, `nessia_items`, `nessia_gallery`, `nessia_quote`, `nessia_overview`.
+- Setup creates the Simple Pages **Archive Overview** (`/overview`) and **Start Here** (`/start-here`) when Simple Pages is active and the slugs are free. Sites that ran setup before get them too: the setup version is part of the check.
+
 ## [1.4.1] — 2026-11-24
 ### Fixed
 - Concurrent first visits could both seed categories, and concurrent page loads could both write Identifiers. Setup work now runs under a MySQL named lock (`GET_LOCK`), and the hash or timestamp is re-checked once the lock is held; each record is re-checked just before its Identifier is written.

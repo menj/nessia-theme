@@ -3903,3 +3903,661 @@ header[role="banner"][style*="background-image"] > * {
 .nessia-tools-result ul {
     margin: 0;
 }
+
+
+/* ==========================================================================
+   Landing pages: hero, stats, sections, collection cards, features,
+   gallery, facets, quotes (lib/landing.php)
+   ========================================================================== */
+
+/* Generated cover: shown wherever a record has no picture of its own */
+.nessia-generated-cover {
+    display: flex;
+    align-items: flex-end;
+    width: 100%;
+    height: 100%;
+    padding: 1em 1.1em;
+    background-color: var(--nessia-primary);
+    background-image:
+        radial-gradient(circle at 85% 15%, rgba(255,255,255,0.10) 0 18%, transparent 19%),
+        repeating-linear-gradient(45deg, rgba(255,255,255,0.035) 0 2px, transparent 2px 14px),
+        linear-gradient(160deg, var(--nessia-primary-light) 0%, var(--nessia-primary) 100%);
+    border-left: 5px solid var(--nessia-accent);
+}
+
+.nessia-generated-cover span {
+    font-family: 'Noto Serif', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.25;
+    color: var(--nessia-accent-light);
+}
+
+/* -- Hero -- */
+.nessia-hero {
+    position: relative;
+    margin: 0 0 2.5em;
+    border-radius: 14px;
+    overflow: hidden;
+    color: #fff;
+    background-color: var(--nessia-primary);
+    background-image:
+        repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0 2px, transparent 2px 16px),
+        linear-gradient(120deg, var(--nessia-primary) 0%, var(--nessia-primary-light) 100%);
+    background-size: cover;
+    background-position: center;
+}
+
+.nessia-hero.has-image::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(10,18,36,0.92) 0%, rgba(10,18,36,0.72) 45%, rgba(10,18,36,0.25) 100%);
+}
+
+.nessia-hero::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--nessia-accent) 0%, var(--nessia-accent-light) 50%, transparent 100%);
+}
+
+.nessia-hero-inner {
+    position: relative;
+    max-width: 40em;
+    padding: clamp(2.25em, 6vw, 4.5em) clamp(1.5em, 5vw, 3.5em);
+}
+
+.nessia-hero-kicker {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--nessia-accent-light);
+    margin: 0 0 0.75em;
+}
+
+.nessia-hero-kicker a {
+    color: inherit;
+}
+
+.nessia-hero-title {
+    font-family: 'Noto Serif', serif;
+    font-size: clamp(1.75rem, 4vw, 2.75rem);
+    line-height: 1.15;
+    color: #fff;
+    margin: 0 0 0.5em;
+    border: 0;
+    padding: 0;
+}
+
+.nessia-hero-text,
+.nessia-hero-text p {
+    font-size: clamp(1rem, 1.6vw, 1.125rem);
+    line-height: 1.65;
+    color: rgba(255,255,255,0.88);
+    margin: 0 0 1.5em;
+}
+
+.nessia-hero-facts {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5em 1.5em;
+    padding: 0;
+    margin: 0 0 1.75em;
+    font-size: 0.875rem;
+    color: rgba(255,255,255,0.8);
+}
+
+.nessia-hero-facts li {
+    list-style: none;
+    margin: 0;
+}
+
+.nessia-hero-facts strong {
+    color: #fff;
+    font-size: 1.125rem;
+    margin-right: 0.2em;
+}
+
+.nessia-hero-btn {
+    display: inline-block;
+    padding: 0.85em 1.75em;
+    background: var(--nessia-accent);
+    color: var(--nessia-primary);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.nessia-hero-btn:hover,
+.nessia-hero-btn:focus-visible {
+    background: var(--nessia-accent-light);
+    color: var(--nessia-primary);
+    text-decoration: none;
+    transform: translateY(-1px);
+}
+
+/* -- Stats -- */
+.nessia-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(8.5em, 1fr));
+    gap: 1px;
+    margin: -1em 0 2.75em;
+    background: var(--nessia-border-light);
+    border: 1px solid var(--nessia-border-light);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.nessia-stat {
+    background: var(--nessia-surface);
+    padding: 1.1em 1.25em;
+    text-align: center;
+}
+
+.nessia-stat-n {
+    display: block;
+    font-family: 'Noto Serif', serif;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--nessia-primary);
+    line-height: 1.1;
+}
+
+.nessia-stat-l {
+    display: block;
+    margin-top: 0.3em;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--nessia-text-muted);
+}
+
+/* -- Sections -- */
+.nessia-section {
+    clear: both;
+    margin: 0 0 3em;
+}
+
+.nessia-section-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1em;
+    border-bottom: 1px solid var(--nessia-border-light);
+    margin-bottom: 1.25em;
+}
+
+.nessia-section-title,
+.nessia-landing #explore-topics h2 {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--nessia-accent-dark);
+    margin: 0 0 1.25em;
+    padding-bottom: 0.6em;
+    border-bottom: 1px solid var(--nessia-border-light);
+}
+
+.nessia-section-head .nessia-section-title {
+    border: 0;
+    margin: 0;
+}
+
+.nessia-section-more {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.nessia-section .nessia-shelf {
+    margin-top: 0;
+}
+
+.nessia-section .nessia-shelf-item h3 {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    line-height: 1.4;
+    margin: 0 0 0.25em;
+}
+
+.nessia-section .nessia-shelf-item h3 a {
+    color: var(--nessia-text);
+}
+
+/* -- Collection cards -- */
+.nessia-collection-cards {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(17em, 1fr));
+    gap: 1.25em;
+}
+
+.nessia-collection-cards > li {
+    list-style: none;
+    margin: 0;
+}
+
+.nessia-ccard {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: var(--nessia-surface);
+    border: 1px solid var(--nessia-border-light);
+    border-radius: 10px;
+    overflow: hidden;
+    color: var(--nessia-text);
+    text-decoration: none;
+    transition: box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.nessia-ccard:hover,
+.nessia-ccard:focus-visible {
+    box-shadow: 0 10px 28px rgba(0,0,0,0.10);
+    transform: translateY(-3px);
+    text-decoration: none;
+    color: var(--nessia-text);
+}
+
+.nessia-ccard-img {
+    display: block;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    background: var(--nessia-bg-alt);
+}
+
+.nessia-ccard-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.nessia-ccard:hover .nessia-ccard-img img {
+    transform: scale(1.04);
+}
+
+.nessia-ccard-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35em;
+    padding: 1.1em 1.25em 1.25em;
+    border-top: 3px solid var(--nessia-accent);
+}
+
+.nessia-ccard-title {
+    font-family: 'Noto Serif', serif;
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--nessia-primary);
+    line-height: 1.3;
+}
+
+.nessia-ccard-meta {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--nessia-accent-dark);
+}
+
+.nessia-ccard-text {
+    font-size: 0.875rem;
+    line-height: 1.55;
+    color: var(--nessia-text-muted);
+}
+
+/* -- Topic tiles get a picture strip -- */
+.nessia-topic-grid > li {
+    padding: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.nessia-topic-img {
+    display: block;
+    aspect-ratio: 16 / 7;
+    overflow: hidden;
+    background: var(--nessia-bg-alt);
+}
+
+.nessia-topic-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.nessia-topic-grid > li:hover .nessia-topic-img img {
+    transform: scale(1.04);
+}
+
+.nessia-topic-img .nessia-generated-cover {
+    border-left: 0;
+}
+
+.nessia-topic-img .nessia-generated-cover span {
+    display: none;
+}
+
+.nessia-topic-body {
+    padding: 1.1em 1.25em 1.25em;
+}
+
+/* -- Feature cards -- */
+.nessia-features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(16em, 1fr));
+    gap: 1.25em;
+}
+
+.nessia-feature {
+    position: relative;
+    display: block;
+    min-height: 22em;
+    border-radius: 12px;
+    overflow: hidden;
+    color: #fff;
+    text-decoration: none;
+    background: var(--nessia-primary);
+}
+
+.nessia-feature-img {
+    position: absolute;
+    inset: 0;
+}
+
+.nessia-feature-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s ease;
+}
+
+.nessia-feature:hover .nessia-feature-img img {
+    transform: scale(1.05);
+}
+
+.nessia-feature-img .nessia-generated-cover {
+    align-items: flex-start;
+    border-left: 0;
+}
+
+.nessia-feature-body {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 4em 1.4em 1.4em;
+    background: linear-gradient(180deg, transparent 0%, rgba(10,18,36,0.88) 45%, rgba(10,18,36,0.96) 100%);
+    display: flex;
+    flex-direction: column;
+    gap: 0.45em;
+}
+
+.nessia-feature-title {
+    font-family: 'Noto Serif', serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    line-height: 1.3;
+    color: #fff;
+}
+
+.nessia-feature-text {
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: rgba(255,255,255,0.82);
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.nessia-feature:hover,
+.nessia-feature:focus-visible {
+    color: #fff;
+    text-decoration: none;
+}
+
+.nessia-feature:focus-visible {
+    outline: 3px solid var(--nessia-accent);
+    outline-offset: 2px;
+}
+
+/* -- Gallery -- */
+.nessia-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 0.6em;
+}
+
+.nessia-gallery a {
+    display: block;
+    aspect-ratio: 1;
+    border-radius: 6px;
+    overflow: hidden;
+    background: var(--nessia-bg-alt);
+    cursor: zoom-in;
+}
+
+.nessia-gallery img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease, opacity 0.2s ease;
+}
+
+.nessia-gallery a:hover img {
+    transform: scale(1.06);
+}
+
+/* -- Facets (overview) -- */
+.nessia-facets {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(17em, 1fr));
+    gap: 1.25em;
+}
+
+.nessia-facet {
+    background: var(--nessia-surface);
+    border: 1px solid var(--nessia-border-light);
+    border-radius: 10px;
+    padding: 1.25em 1.4em;
+}
+
+.nessia-facet h3 {
+    font-family: 'Noto Serif', serif;
+    font-size: 1.0625rem;
+    margin: 0 0 1em;
+    color: var(--nessia-primary);
+}
+
+.nessia-bars {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.nessia-bars li {
+    list-style: none;
+    margin: 0 0 0.55em;
+}
+
+.nessia-bars li,
+.nessia-bars a {
+    display: grid;
+    grid-template-columns: 8.5em 1fr 2.5em;
+    align-items: center;
+    gap: 0.6em;
+    font-size: 0.8125rem;
+    color: var(--nessia-text);
+    text-decoration: none;
+}
+
+.nessia-bars li:has(> a) {
+    display: block;
+}
+
+.nessia-bars a:hover .nessia-bar-l {
+    color: var(--nessia-link-hover);
+}
+
+.nessia-bar {
+    height: 8px;
+    background: var(--nessia-bg-alt);
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.nessia-bar span {
+    display: block;
+    height: 100%;
+    background: linear-gradient(90deg, var(--nessia-accent-dark), var(--nessia-accent));
+    border-radius: 999px;
+}
+
+.nessia-bar-n {
+    text-align: right;
+    color: var(--nessia-text-muted);
+    font-variant-numeric: tabular-nums;
+}
+
+.nessia-chips {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45em;
+    padding: 0;
+    margin: 0;
+}
+
+.nessia-chips li {
+    list-style: none;
+    margin: 0;
+}
+
+.nessia-chips a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45em;
+    padding: 0.35em 0.85em;
+    border-radius: 999px;
+    background: var(--nessia-tag-bg);
+    color: var(--nessia-tag-text);
+    font-size: 0.8125rem;
+    text-decoration: none;
+}
+
+.nessia-chips a span {
+    opacity: 0.65;
+}
+
+.nessia-chips a:hover {
+    background: var(--nessia-accent);
+    color: #fff;
+    text-decoration: none;
+}
+
+/* -- Quote -- */
+.nessia-quote {
+    margin: 2.5em 0;
+    padding: 1.75em 2em;
+    background: var(--nessia-featured-bg);
+    border-left: 4px solid var(--nessia-accent);
+    border-radius: 0 10px 10px 0;
+}
+
+.nessia-quote blockquote {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    font-family: 'Noto Serif', serif;
+    font-size: clamp(1.125rem, 2vw, 1.375rem);
+    font-style: italic;
+    line-height: 1.55;
+    color: var(--nessia-primary);
+}
+
+.nessia-quote figcaption {
+    margin-top: 0.85em;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--nessia-accent-dark);
+}
+
+/* Landing pages and Simple Pages built from blocks use the full width */
+.simple-page #primary:has(.nessia-hero, .nessia-stats, .nessia-collection-cards) {
+    max-width: none;
+    background: none;
+    border: 0;
+    box-shadow: none;
+    padding: 0;
+}
+
+.simple-page #primary:has(.nessia-hero, .nessia-stats, .nessia-collection-cards)::before {
+    display: none;
+}
+
+/* Collection landing: the banner already says the title */
+.nessia-landing.collections .nessia-page-banner .nessia-page-title {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+}
+
+@media screen and (max-width: 767px) {
+    .nessia-hero {
+        border-radius: 10px;
+    }
+
+    .nessia-hero.has-image::before {
+        background: linear-gradient(180deg, rgba(10,18,36,0.55) 0%, rgba(10,18,36,0.92) 60%);
+    }
+
+    .nessia-stats {
+        grid-template-columns: repeat(2, 1fr);
+        margin-top: -0.5em;
+    }
+
+    .nessia-feature {
+        min-height: 17em;
+    }
+
+    .nessia-bars li,
+    .nessia-bars a {
+        grid-template-columns: 6.5em 1fr 2em;
+    }
+
+    .nessia-gallery {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .nessia-ccard:hover,
+    .nessia-hero-btn:hover {
+        transform: none;
+    }
+
+    .nessia-ccard:hover .nessia-ccard-img img,
+    .nessia-topic-grid > li:hover .nessia-topic-img img,
+    .nessia-feature:hover .nessia-feature-img img,
+    .nessia-gallery a:hover img {
+        transform: none;
+    }
+}
